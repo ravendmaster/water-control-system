@@ -13,12 +13,11 @@
 
   <project>
     <PathAndName>.\openhab-gate\MDK-ARM\openhab-gate.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\radio-probe\MDK-ARM\radio-probe.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 

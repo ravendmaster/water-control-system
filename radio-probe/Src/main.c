@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 28/07/2015 20:09:50
+  * Date               : 30/07/2015 17:22:51
   * Description        : Main program body
   ******************************************************************************
   *
@@ -108,12 +108,6 @@ void setPostKey(uint32_t key)
 
 void onAir(){
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	
-	// for test only
-//	HAL_Delay(1000);
-//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-//	return;
-	
 	    
 	aes128_init(AES_key, &AES_ctx);
 	EncryptedBlock probeBlock;
@@ -130,13 +124,13 @@ void onAir(){
 		probeBlock.data[i]=rand()%255;
 	}
 
-
 	// רטפנףול
 	aes128_enc(&probeBlock, &AES_ctx);
 	aes128_enc(&probeBlock+16, &AES_ctx);
 
 	/* Automatically goes to TX mode */
 	nrf24_send((uint8_t*)&probeBlock);        
+
 	
 	/* Wait for transmission to end */
 	while(nrf24_isSending()){};
@@ -189,9 +183,6 @@ void onAir(){
 	
 }
 
-//uint8_t tx_address[5] = {0x28,0xE7,0xE7,0xE7,0xE7};
-uint8_t rx_address[5] = {0x27,0xD7,0xD7,0xD7,0xD7};
-
 void nrf_Init(){
 
 	nrf24_init(&hspi2);
@@ -231,15 +222,19 @@ int main(void)
 	
 	onAir();
 	
+	uint16_t wakeup_time=BKP->DR3;
+	if(wakeup_time==0){wakeup_time=3;}
+	
 	RTC_AlarmTypeDef alarmTime;
-	alarmTime.AlarmTime.Seconds=BKP->DR3%60;
-	alarmTime.AlarmTime.Minutes=BKP->DR3/60;
+	alarmTime.AlarmTime.Seconds=wakeup_time%60;
+	alarmTime.AlarmTime.Minutes=wakeup_time/60;
   HAL_RTC_SetAlarm(&hrtc, &alarmTime, FORMAT_BCD);
 	
   __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
 	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
 	
 	HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -270,16 +265,15 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV16;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
+  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;

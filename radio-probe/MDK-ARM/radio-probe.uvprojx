@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>radio-probe</TargetName>
+      <TargetName>radio-probe Configuration</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -46,8 +46,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\objs\</OutputDirectory>
-          <OutputName>nrf24l01 Configuration</OutputName>
+          <OutputDirectory>radio-probe Configuration\</OutputDirectory>
+          <OutputName>radio-probe Configuration</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -365,7 +365,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\Drivers\STM32F1xx_HAL_Driver\Inc;..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy;..\Drivers\CMSIS\Include;..\Drivers\CMSIS\Device\ST\STM32F1xx\Include;..\..\shared-libs\aes;..\..\shared-libs\nrf24;..\..\shared-libs\encrypted-block;..\..\shared-libs</IncludePath>
+              <IncludePath>..\Inc; ..\Drivers\STM32F1xx_HAL_Driver\Inc; ..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy; ..\Drivers\CMSIS\Include; ..\Drivers\CMSIS\Device\ST\STM32F1xx\Include; ..\..\shared-libs\aes; ..\..\shared-libs\nrf24; ..\..\shared-libs\encrypted-block; ..\..\shared-libs</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
