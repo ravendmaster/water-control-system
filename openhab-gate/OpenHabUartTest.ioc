@@ -38,6 +38,7 @@ Mcu.Pin3=PH0-OSC_IN
 Mcu.Pin30=PA13
 Mcu.Pin31=PA14
 Mcu.Pin32=PC10
+Mcu.Pin33=PC12
 Mcu.Pin34=PD4
 Mcu.Pin35=PD5
 Mcu.Pin36=PB3
@@ -357,4 +358,3 @@ SPI2.CalculateBaudRate=10.5 MBits/s
 SPI2.IPParameters=BaudRatePrescaler,Mode,CalculateBaudRate
 SPI2.Mode=SPI_MODE_MASTER
 boardIOC=true
-
