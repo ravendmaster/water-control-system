@@ -1302,7 +1302,7 @@ void StartI2CTimeTask(void const * argument)
 	if(AT24C_Read(&hi2c1, 0,	counter_settings_data_buff, 32))
 	{
 	}
-	if(AT24C_Read(&hi2c1, 32,	&counter_settings_data_buff[32], 32))
+	if(AT24C_Read(&hi2c1, 32,	counter_settings_data_buff+32, 32))
 	{
 	}
 	counter_settings_data_buff_inizialized=true;
@@ -1332,7 +1332,7 @@ void StartI2CTimeTask(void const * argument)
 			{
 			}
 
-			if(AT24C_Write(&hi2c1, 32, &counter_settings_data_buff[32], 32))
+			if(AT24C_Write(&hi2c1, 32, counter_settings_data_buff+32, 32))
 			{
 			}
 			
