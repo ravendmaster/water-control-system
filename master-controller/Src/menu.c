@@ -21,8 +21,8 @@ Widget widgetInstance;
 
 Widget * menu_getWidget()
 {
-	widgetInstance.foregroundColor=LCD_BLACK;
-	widgetInstance.backgroundColor=LCD_WHITE;
+	widgetInstance.foregroundColor=1;// 1 - def LCD_BLACK;
+	widgetInstance.backgroundColor=1;// 1 - def LCD_WHITE;
 	widgetInstance.onDrawFunc=0;
 	return &widgetInstance;
 }
@@ -111,7 +111,13 @@ void Menu_Draw()
 			}
 			else
 			{
-				LCD_setForegroundColor(LCD_BLACK);
+				if(menuInstance.cur_menu->items[i].actionFunc==0)
+				{
+					LCD_setForegroundColor(LCD_RGB(0.5,0.5,1));
+				}else{
+					LCD_setForegroundColor(LCD_BLACK);
+				}
+				
 				LCD_setBackgroundColor(LCD_WHITE);
 			}
 			
@@ -120,8 +126,14 @@ void Menu_Draw()
 				char textbuff[32];
 				//Widget * widget=menuInstance.cur_menu->items[i].widget();
 				if(i!=menuInstance.cur_position){
-					LCD_setBackgroundColor(widget->backgroundColor);
-					LCD_setForegroundColor(widget->foregroundColor);
+					
+					if(widget->backgroundColor!=1){
+						LCD_setBackgroundColor(widget->backgroundColor);
+					}
+					
+					if(widget->foregroundColor!=1){
+						LCD_setForegroundColor(widget->foregroundColor);
+					}
 				}
 				sprintf(textbuff, (char*)menuInstance.cur_menu->items[i].text, widget->menuViewTempBuff);
 				text=textbuff;
@@ -145,6 +157,8 @@ void Menu_Draw()
 			break;
 			case X_PLUS_20:
 				space=20;
+				break;
+			case NEW_LINE:
 				break;
 		}
 		//int ypos=current_ypos;//(CHAR_H_PXL)*(current_line);

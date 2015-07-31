@@ -99,7 +99,8 @@ uint8_t time_data_buff_need_save=0;
 
 bool counter_settings_data_buff_inizialized=false;
 uint8_t counter_settings_data_buff[64];
-bool counter_settings_data_buff_need_save=false;
+bool settings_page1_data_buff_need_save=false;
+bool settings_page2_data_buff_need_save=false;
 
 bool userAlreadyNotified=false;
 
@@ -165,8 +166,9 @@ typedef struct
 	DateTime valveOpenDate; //18 - 24
 	ValveStatus valveStatus; //25
 	uint16_t radio_onair_interval; //26,27
-	uint32_t key; //28-31
+	uint32_t key; //page 2
 	DateTime radio_sensor_dateTime; //32 - 38
+	uint32_t valveOperationsCounter;
 } SettingsAndStatus;
 
 SettingsAndStatus * getSettingsStruct()
@@ -192,13 +194,23 @@ enum Event
 void saveCCW(uint32_t data)
 {
 	getSettingsStruct()->ccw=data;
-	counter_settings_data_buff_need_save=true;
+	settings_page1_data_buff_need_save=true;
 }
 
 void saveCHW(uint32_t data)
 {
 	getSettingsStruct()->chw=data;
-	counter_settings_data_buff_need_save=true;
+	settings_page1_data_buff_need_save=true;
+}
+
+uint32_t loadValveOperationsCounter()
+{
+	return getSettingsStruct()->valveOperationsCounter;
+}
+
+void saveValveOperationsCounter(uint32_t count){
+	getSettingsStruct()->valveOperationsCounter=count;
+	settings_page2_data_buff_need_save=true;
 }
 
 uint32_t loadCCW()
@@ -219,12 +231,18 @@ DateTime * getCurrentDateTime()
 void saveAccidentStatus(AccidentStatus mode)
 {
 	getSettingsStruct()->accident_status=mode;
-	counter_settings_data_buff_need_save=true;
+	settings_page1_data_buff_need_save=true;
 }
 
 AccidentStatus loadAccidentStatus()
 {
 	return getSettingsStruct()->accident_status;
+}
+
+Widget * getValveOperationsCounter(){
+	Widget * tempWidget=menu_getWidget();
+	sprintf(tempWidget->menuViewTempBuff, "%u", getSettingsStruct()->valveOperationsCounter);
+	return tempWidget;
 }
 
 void printDataTime(char * buff, DateTime * dateTime)
@@ -251,7 +269,7 @@ Widget * getWidgetRadioSensorResistance()
 	Widget * tempWidget=menu_getWidget();
 	if(radio_sensor_resistance_value==0xffff)
 	{
-		sprintf(tempWidget->menuViewTempBuff, "n/a");
+		sprintf(tempWidget->menuViewTempBuff, "no data");
 	}
 	else
 	{
@@ -397,13 +415,13 @@ Widget * getWidgetValveStatus()
 void setADCAccidentValue(uint16_t value)
 {
 	getSettingsStruct()->accident_level_value=value;
-	counter_settings_data_buff_need_save=true;
+	settings_page1_data_buff_need_save=true;
 }
 
 void setRadioOnAirIntervalValue(uint16_t value)
 {
 	getSettingsStruct()->radio_onair_interval=value;
-	counter_settings_data_buff_need_save=true;
+	settings_page1_data_buff_need_save=true;
 }
 
 
@@ -493,7 +511,11 @@ void saveValveStatus(ValveStatus status)
 	}
 	memcpy(ptr, getCurrentDateTime(), sizeof(DateTime));
 	getSettingsStruct()->valveStatus=status;
-	counter_settings_data_buff_need_save=true;
+	settings_page1_data_buff_need_save=true;
+}
+
+void resetValveCounter(void * param){
+	saveValveOperationsCounter(0);
 }
 
 //Открытие кранов
@@ -524,6 +546,8 @@ void ValveOff(void * param)
 	water_startRelePowerOffTimer();
 	
 	saveValveStatus(VALVE_STATUS_CLOSED);
+	
+	saveValveOperationsCounter(loadValveOperationsCounter()+1);
 }
 
 
@@ -620,7 +644,7 @@ uint32_t getKey(){
 
 void setKey(uint32_t key){
 	getSettingsStruct()->key=key;
-	counter_settings_data_buff_need_save=true;
+	settings_page2_data_buff_need_save=true;
 }
 
 //настройка уровня срабатывания датчика протечки
@@ -676,8 +700,9 @@ MenuItem manual_water_control_menu_items[]={ {"Главное меню",menu_goToMenu,(void
 																						{"Закрыты: %s", 0, 0, getWidgetValveLastClose},
 																						{"Открыты: %s", 0, 0, getWidgetValveLastOpen},
 																						{"Краны: %s", 0, 0, getWidgetValveStatus},
+																						{"Количество откр.: %s", resetValveCounter, 0, getValveOperationsCounter},
 																					};
-Menu manualWaterControlMenu={(MenuItem*)manual_water_control_menu_items, 6};
+Menu manualWaterControlMenu={(MenuItem*)manual_water_control_menu_items, 7};
 
 MenuItem time_setup_menu_items[]={
 																	{"%s", 0, 0, getWidgetCurrentDateTime},
@@ -713,7 +738,7 @@ MenuItem accident_settings_menu_items[]={ 	{"%s", 0, 0, getWidgetCurrentDateTime
 																						{"Главное меню",menu_goToMenu,(void*)&mainMenu},
 																						{"Текущее: ",0, 0, 0, X_PLUS_0},
 																						{"%s", 0, 0, getWidgetSensorResistance,X_PLUS_0},
-																						{"/%s", 0, 0, getWidgetRadioSensorResistance},
+																						{" / %s", 0, 0, getWidgetRadioSensorResistance},
 																						
 																						{"Граница: ", 0, 0, 0, X_PLUS_0},
 																						{"%s", 0, 0, getWidgetAccidentLevel, X_160},
@@ -722,15 +747,15 @@ MenuItem accident_settings_menu_items[]={ 	{"%s", 0, 0, getWidgetCurrentDateTime
 
 																						{"Ключ/сброс: %s",resetKey, 0, getWidgetRadioKey},
 																						
-																						{"Радиоэфир: ", 0, 0, 0, X_PLUS_0},
-																						{"%s", 0, 0, getWidgetRadioOnAirInterval, X_PLUS_20},
-																						{"[+]",radio_probe_onair_interval_tune,(void*)&one,0, X_PLUS_20},
-																						{"[-]",radio_probe_onair_interval_tune,(void*)&minus_one},
+																						//{"Радиоэфир: ", 0, 0, 0, X_PLUS_0},
+																						//{"%s", 0, 0, getWidgetRadioOnAirInterval, X_PLUS_20},
+																						//{"[+]",radio_probe_onair_interval_tune,(void*)&one,0, X_PLUS_20},
+																						//{"[-]",radio_probe_onair_interval_tune,(void*)&minus_one},
 																						{"Последний рапорт:"},
 																						{"%s", 0, 0, getWidgetRadioProbeOnAirDateTime},
 
 																					};
-Menu accidentSettingsMenu={(MenuItem*)accident_settings_menu_items, 16};
+Menu accidentSettingsMenu={(MenuItem*)accident_settings_menu_items, 12};
 
 MenuItem other_menu_items[]={ {"Главное меню",menu_goToMenu,(void*)&mainMenu},
 																						{"%s", 0, 0, getWidgetNRFData},
@@ -1325,17 +1350,19 @@ void StartI2CTimeTask(void const * argument)
 			}
 		}
 		
-		if(counter_settings_data_buff_need_save)
+		if(settings_page1_data_buff_need_save)
 		{
-			counter_settings_data_buff_need_save=false;
+			settings_page1_data_buff_need_save=false;
 			if(AT24C_Write(&hi2c1, 0, counter_settings_data_buff, 32))
 			{
 			}
+		}
 
+		if(settings_page2_data_buff_need_save)
+		{
 			if(AT24C_Write(&hi2c1, 32, counter_settings_data_buff+32, 32))
 			{
 			}
-			
 		}
 		
 		readSensorResistanceValue();
@@ -1406,7 +1433,7 @@ void StartNrf24Task(void const * argument)
 				
 				radio_sensor_resistance_value=probeData->sensor_val;
 				getSettingsStruct()->radio_sensor_dateTime=*getCurrentDateTime();
-				counter_settings_data_buff_need_save=true;
+				settings_page2_data_buff_need_save=true;
 
 				//данные в зонд
 //				EncryptedBlock mainBlock;
