@@ -1350,7 +1350,7 @@ void StartNrf24Task(void const * argument)
 {
   /* USER CODE BEGIN StartNrf24Task */
 	osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
-	nrf24_config(2,32);
+	nrf24_config(99,32);
 	nrf24_powerUpRx();
 	
 	
@@ -1391,6 +1391,11 @@ void StartNrf24Task(void const * argument)
 				aes128_dec((uint8_t*)&probeBlock, &AES_ctx);
 				aes128_dec((uint8_t*)&probeBlock+16, &AES_ctx);
 
+				ProbeData * probeData=(ProbeData *)probeBlock.data;
+				if(probeData->crc!=0xf0f0f0f0){
+					continue;
+				}
+			
 				if(probeBlock.token<=getKey()){
 					continue;
 				}
@@ -1398,7 +1403,7 @@ void StartNrf24Task(void const * argument)
 				
 				srand(probeBlock.token);
 
-				ProbeData * probeData=(ProbeData *)probeBlock.data;
+				
 				radio_sensor_resistance_value=probeData->sensor_val;
 				getSettingsStruct()->radio_sensor_dateTime=*getCurrentDateTime();
 				counter_settings_data_buff_need_save=true;

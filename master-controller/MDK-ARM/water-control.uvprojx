@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\Drivers\STM32F1xx_HAL_Driver\Inc;..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy;..\Drivers\CMSIS\Include;..\Drivers\CMSIS\Device\ST\STM32F1xx\Include;..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM3;..\Middlewares\Third_Party\FreeRTOS\Source\include;..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\shared-libs\aes;..\..\shared-libs\NRF24;..\..\shared-libs\encrypted-block</IncludePath>
+              <IncludePath>..\Inc;..\Drivers\STM32F1xx_HAL_Driver\Inc;..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy;..\Drivers\CMSIS\Include;..\Drivers\CMSIS\Device\ST\STM32F1xx\Include;..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM3;..\Middlewares\Third_Party\FreeRTOS\Source\include;..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\shared-libs\aes;..\..\shared-libs\NRF24;..\..\shared-libs\encrypted-block;..\..\shared-libs\</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
