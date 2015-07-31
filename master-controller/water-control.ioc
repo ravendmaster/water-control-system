@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Tue Jul 28 20:51:51 MSK 2015
+#Fri Jul 31 16:09:37 MSK 2015
 ADC2.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_0
 ADC2.IPParameters=Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,Rank-0\#ChannelRegularConversion
 ADC2.Rank-0\#ChannelRegularConversion=1
@@ -17,7 +17,7 @@ Dma.SPI1_TX.0.Priority=DMA_PRIORITY_LOW
 Dma.SPI1_TX.0.RequestParameters=Instance,Direction,PeriphInc,MemInc,PeriphDataAlignment,MemDataAlignment,Mode,Priority
 FREERTOS.BinarySemaphores01=SPI1BinarySem
 FREERTOS.IPParameters=Tasks01,configTOTAL_HEAP_SIZE,BinarySemaphores01
-FREERTOS.Tasks01=LCDTask,0,128,StartLCDTask;UserManagement,0,128,StartUserManagementTask;I2CTimeTask,0,128,StartI2CTimeTask;NRFf24Task,-3,128,StartNrf24Task
+FREERTOS.Tasks01=LCDTask,0,128,StartLCDTask;UserManagement,0,128,StartUserManagementTask;I2CTimeTask,0,128,StartI2CTimeTask;NRFf24Task,0,128,StartNrf24Task
 FREERTOS.configTOTAL_HEAP_SIZE=8192
 File.Version=5
 KeepUserPlacement=false
@@ -275,7 +275,7 @@ RCC.APB2TimFreq_Value=72000000
 RCC.FCLKCortexFreq_Value=72000000
 RCC.FamilyName=M
 RCC.HCLKFreq_Value=72000000
-RCC.IPParameters=PLLSource,VCOOutput2Freq_Value,PLLMUL,RTCFreq_Value,PLLMCOFreq_Value,FamilyName,APB1TimFreq_Value,APB2Freq_Value,APB1CLKDivider,HCLKFreq_Value,FCLKCortexFreq_Value,USBFreq_Value,ADCPresc,AHBFreq_Value,PLLSourceVirtual,TimSysFreq_Value,ADCFreqValue,SYSCLKFreq_VALUE,SYSCLKSource,MCOFreq_Value,RTCClockSelection,APB1Freq_Value,USBPrescaler,PLLCLKFreq_Value,APB2TimFreq_Value
+RCC.IPParameters=PLLSource,VCOOutput2Freq_Value,PLLMUL,RTCFreq_Value,APB1TimFreq_Value,FamilyName,PLLMCOFreq_Value,APB2Freq_Value,APB1CLKDivider,HCLKFreq_Value,FCLKCortexFreq_Value,USBFreq_Value,ADCPresc,AHBFreq_Value,PLLSourceVirtual,TimSysFreq_Value,ADCFreqValue,SYSCLKFreq_VALUE,SYSCLKSource,MCOFreq_Value,RTCClockSelection,APB1Freq_Value,USBPrescaler,PLLCLKFreq_Value,APB2TimFreq_Value
 RCC.MCOFreq_Value=72000000
 RCC.PLLCLKFreq_Value=72000000
 RCC.PLLMCOFreq_Value=36000000

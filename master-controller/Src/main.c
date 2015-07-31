@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 28/07/2015 20:51:52
+  * Date               : 31/07/2015 16:09:39
   * Description        : Main program body
   ******************************************************************************
   *
@@ -817,7 +817,7 @@ int main(void)
   I2CTimeTaskHandle = osThreadCreate(osThread(I2CTimeTask), NULL);
 
   /* definition and creation of NRFf24Task */
-  osThreadDef(NRFf24Task, StartNrf24Task, osPriorityIdle, 0, 128);
+  osThreadDef(NRFf24Task, StartNrf24Task, osPriorityNormal, 0, 128);
   NRFf24TaskHandle = osThreadCreate(osThread(NRFf24Task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -1399,7 +1399,7 @@ void StartNrf24Task(void const * argument)
 				if(probeBlock.token<=getKey()){
 					continue;
 				}
-				setKey(probeBlock.token+1);
+				setKey(probeBlock.token);
 				
 				srand(probeBlock.token);
 
@@ -1423,7 +1423,7 @@ void StartNrf24Task(void const * argument)
 //				nrf24_send(&mainBlock);
 //				while(nrf24_isSending()){};
 				
-		}
+		}else{osSemaphoreRelease(SPI1BinarySemHandle);}
 		
 //		if(HAL_GetTick()-lastOnAirCenter>1000)
 //		{
@@ -1442,11 +1442,10 @@ void StartNrf24Task(void const * argument)
 //		nrf24_rx_address(master_controller_address);	
 //		nrf24_tx_address(zond_address);
 //		nrf24_powerUpRx();
-					
-		osSemaphoreRelease(SPI1BinarySemHandle);
+	}
 	
     
-  }
+  
   /* USER CODE END StartNrf24Task */
 }
 
