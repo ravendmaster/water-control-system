@@ -3,7 +3,6 @@
 typedef struct 
 {
 	uint32_t token;
-	
 	uint8_t data[28];
 	
 } EncryptedBlock;
@@ -17,5 +16,7 @@ typedef struct
 typedef struct
 {
 	uint16_t sensor_val;
+	uint32_t crc;
+
 }ProbeData;
 

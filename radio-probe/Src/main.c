@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 30/07/2015 17:22:51
+  * Date               : 31/07/2015 15:25:50
   * Description        : Main program body
   ******************************************************************************
   *
@@ -45,6 +45,8 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
+
 RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi2;
@@ -57,6 +59,7 @@ SPI_HandleTypeDef hspi2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_CRC_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI2_Init(void);
 
@@ -89,10 +92,14 @@ aes128_ctx_t AES_ctx;
 
 uint8_t phrase[16];
 
-uint32_t readSensorResistanceValue()
+uint32_t isAccidient()
 {
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)==GPIO_PIN_SET){return 3000;}
-	return 4095;
+	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)==GPIO_PIN_SET)
+	{
+		return 1;
+	}
+	
+	return 0;
 }
 
 uint32_t getPostKey()
@@ -106,9 +113,11 @@ void setPostKey(uint32_t key)
 		BKP->DR2=key>>16;	
 }
 
-void onAir(){
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	    
+uint8_t onAir(uint16_t accidient){
+	
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);//green
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3);//blue
+	
 	aes128_init(AES_key, &AES_ctx);
 	EncryptedBlock probeBlock;
 	probeBlock.token=getPostKey();
@@ -116,7 +125,12 @@ void onAir(){
 	
 	//fill data where
 	ProbeData * probeData=(ProbeData*)probeBlock.data;
-	probeData->sensor_val=readSensorResistanceValue();
+	if(accidient){
+		probeData->sensor_val=3000;}
+	else{
+		probeData->sensor_val=4095;}
+	
+	probeData->crc=0x00;
 	
 	srand(probeBlock.token);
 	for(int i=sizeof(probeData);i<sizeof(probeBlock.data);i++)
@@ -136,15 +150,22 @@ void onAir(){
 	while(nrf24_isSending()){};
 
 	/* Make analysis on last tranmission attempt */
-	//temp = nrf24_lastMessageStatus();
+	uint8_t temp = nrf24_lastMessageStatus();
 
-	//if(temp == NRF24_TRANSMISSON_OK)
+	if(temp == NRF24_TRANSMISSON_OK)
 	{                    
 			//xprintf("> Tranmission went OK\r\n");
 	}
-	//else if(temp == NRF24_MESSAGE_LOST)
-	{                    
-			//xprintf("> Message is lost ...\r\n");    
+	else if(temp == NRF24_MESSAGE_LOST)
+	{   
+//			for(int i=1;i<10;i++)
+//			{		
+//				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);		
+//				HAL_Delay(20);
+//				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);		
+//				HAL_Delay(20);
+//			}
+						//xprintf("> Message is lost ...\r\n");    
 		//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 	}
 	
@@ -152,11 +173,13 @@ void onAir(){
 	//temp = nrf24_retransmissionCount();
 	//xprintf("> Retranmission count: %d\r\n",temp);
 
-	nrf24_powerUpRx();
+	
 	
 	uint8_t cfg_recived=0;
 	while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)==GPIO_PIN_RESET)
 	{
+		nrf24_powerUpRx();
+		
 		if((HAL_GetTick()&64)||(cfg_recived)){
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 		}
@@ -179,11 +202,13 @@ void onAir(){
 		
 	nrf24_powerDown();
 
+	return temp;
 	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);	
 	
 }
 
 /* USER CODE END 0 */
+
 int main(void)
 {
 
@@ -201,31 +226,47 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_CRC_Init();
   MX_RTC_Init();
   MX_SPI2_Init();
 
   /* USER CODE BEGIN 2 */
-	nrf24_init(&hspi2);
-  nrf24_config(2,32);	
-  nrf24_tx_address(master_controller_address);
-  nrf24_rx_address(zond_address);
+	uint16_t accidient=isAccidient();
+	
+	if(accidient){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET); //red
+	}
+	else{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET); //green
+	}
+	
+	if((accidient)||(BKP->DR3==0))
+		{
+		
+		nrf24_init(&hspi2);
+		nrf24_config(99,32);	
+		nrf24_tx_address(master_controller_address);
+		nrf24_rx_address(zond_address);
 
+		while((onAir(accidient)!=NRF24_TRANSMISSON_OK)){};
+		
+		BKP->DR3=10;
+	}
+	BKP->DR3-=1;
 	
-	onAir();
-	
-	uint16_t wakeup_time=BKP->DR3;
-	if(wakeup_time==0){wakeup_time=10;}
-	
+
+	MX_RTC_Init();
+		
 	RTC_AlarmTypeDef alarmTime;
-	alarmTime.AlarmTime.Seconds=wakeup_time%60;
-	alarmTime.AlarmTime.Minutes=wakeup_time/60;
-  HAL_RTC_SetAlarm(&hrtc, &alarmTime, FORMAT_BCD);
-	
-  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+	alarmTime.AlarmTime.Seconds=0;
+	HAL_RTC_SetAlarm(&hrtc, &alarmTime, FORMAT_BCD);
+		
+	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
 	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
-	
-	HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
-	
+		
+	HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);	
+
+		
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -233,7 +274,6 @@ int main(void)
   while (1)
   {
 		HAL_PWR_EnterSTANDBYMode();
-		//HAL_PWR
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -257,19 +297,29 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
   HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV16;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
+  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+
+}
+
+/* CRC init function */
+void MX_CRC_Init(void)
+{
+
+  hcrc.Instance = CRC;
+  HAL_CRC_Init(&hcrc);
 
 }
 
@@ -353,15 +403,21 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA1 PA2 PA3 PA4 
-                           PA5 PA6 PA7 PA10 
-                           PA11 PA12 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4 
-                          |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_15;
+  /*Configure GPIO pins : PA1 PA2 PA3 PA8 
+                           PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_8 
+                          |GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PA4 PA5 PA6 PA7 
+                           PA10 PA11 PA12 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7 
+                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -379,12 +435,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PA8 PA9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PB8 */
   GPIO_InitStruct.Pin = GPIO_PIN_8;
