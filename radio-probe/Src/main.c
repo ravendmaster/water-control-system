@@ -179,24 +179,11 @@ void onAir(){
 		
 	nrf24_powerDown();
 
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);	
+	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);	
 	
-}
-
-void nrf_Init(){
-
-	nrf24_init(&hspi2);
-  /* Channel #2 , payload length: 32 */
-  nrf24_config(2,32);	
-	
-  /* Set the device addresses */
-
-  nrf24_tx_address(master_controller_address);
-  nrf24_rx_address(zond_address);
 }
 
 /* USER CODE END 0 */
-
 int main(void)
 {
 
@@ -218,12 +205,16 @@ int main(void)
   MX_SPI2_Init();
 
   /* USER CODE BEGIN 2 */
-	nrf_Init();
+	nrf24_init(&hspi2);
+  nrf24_config(2,32);	
+  nrf24_tx_address(master_controller_address);
+  nrf24_rx_address(zond_address);
+
 	
 	onAir();
 	
 	uint16_t wakeup_time=BKP->DR3;
-	if(wakeup_time==0){wakeup_time=3;}
+	if(wakeup_time==0){wakeup_time=10;}
 	
 	RTC_AlarmTypeDef alarmTime;
 	alarmTime.AlarmTime.Seconds=wakeup_time%60;
@@ -242,6 +233,7 @@ int main(void)
   while (1)
   {
 		HAL_PWR_EnterSTANDBYMode();
+		//HAL_PWR
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

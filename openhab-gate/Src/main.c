@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 29/07/2015 21:41:05
+  * Date               : 30/07/2015 19:25:13
   * Description        : Main program body
   ******************************************************************************
   *
@@ -166,6 +166,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));
+		
 		if(nrf24_dataReady())
     {
       nrf24_getData(buff);
@@ -300,6 +302,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PC0 PC9 */
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_9;

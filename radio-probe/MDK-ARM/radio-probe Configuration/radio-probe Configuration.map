@@ -224,18 +224,16 @@ Section Cross References
     main.o(i.main) refers to main.o(i.MX_GPIO_Init) for MX_GPIO_Init
     main.o(i.main) refers to main.o(i.MX_RTC_Init) for MX_RTC_Init
     main.o(i.main) refers to main.o(i.MX_SPI2_Init) for MX_SPI2_Init
-    main.o(i.main) refers to main.o(i.nrf_Init) for nrf_Init
+    main.o(i.main) refers to nrf24.o(i.nrf24_init) for nrf24_init
+    main.o(i.main) refers to nrf24.o(i.nrf24_config) for nrf24_config
+    main.o(i.main) refers to nrf24.o(i.nrf24_tx_address) for nrf24_tx_address
+    main.o(i.main) refers to nrf24.o(i.nrf24_rx_address) for nrf24_rx_address
     main.o(i.main) refers to main.o(i.onAir) for onAir
     main.o(i.main) refers to stm32f1xx_hal_rtc.o(i.HAL_RTC_SetAlarm) for HAL_RTC_SetAlarm
     main.o(i.main) refers to stm32f1xx_hal_pwr.o(i.HAL_PWR_EnableWakeUpPin) for HAL_PWR_EnableWakeUpPin
     main.o(i.main) refers to stm32f1xx_hal_pwr.o(i.HAL_PWR_EnterSTANDBYMode) for HAL_PWR_EnterSTANDBYMode
-    main.o(i.main) refers to main.o(.bss) for hrtc
-    main.o(i.nrf_Init) refers to nrf24.o(i.nrf24_init) for nrf24_init
-    main.o(i.nrf_Init) refers to nrf24.o(i.nrf24_config) for nrf24_config
-    main.o(i.nrf_Init) refers to nrf24.o(i.nrf24_tx_address) for nrf24_tx_address
-    main.o(i.nrf_Init) refers to nrf24.o(i.nrf24_rx_address) for nrf24_rx_address
-    main.o(i.nrf_Init) refers to main.o(.bss) for hspi2
-    main.o(i.nrf_Init) refers to main.o(.data) for master_controller_address
+    main.o(i.main) refers to main.o(.bss) for hspi2
+    main.o(i.main) refers to main.o(.data) for master_controller_address
     main.o(i.onAir) refers to stm32f1xx_hal_gpio.o(i.HAL_GPIO_WritePin) for HAL_GPIO_WritePin
     main.o(i.onAir) refers to aes_keyschedule.o(i.aes128_init) for aes128_init
     main.o(i.onAir) refers to main.o(i.getPostKey) for getPostKey
@@ -803,33 +801,32 @@ Image Symbol Table
     i.getPostKey                             0x08002fd4   Section        0  main.o(i.getPostKey)
     i.gf256mul                               0x08002fe8   Section        0  gf256mul.o(i.gf256mul)
     i.main                                   0x08003014   Section        0  main.o(i.main)
-    i.nrf24_config                           0x08003094   Section        0  nrf24.o(i.nrf24_config)
-    i.nrf24_configRegister                   0x08003110   Section        0  nrf24.o(i.nrf24_configRegister)
-    i.nrf24_dataReady                        0x08003144   Section        0  nrf24.o(i.nrf24_dataReady)
-    i.nrf24_getData                          0x08003164   Section        0  nrf24.o(i.nrf24_getData)
-    i.nrf24_getStatus                        0x080031a4   Section        0  nrf24.o(i.nrf24_getStatus)
-    i.nrf24_init                             0x080031cc   Section        0  nrf24.o(i.nrf24_init)
-    i.nrf24_isSending                        0x080031f4   Section        0  nrf24.o(i.nrf24_isSending)
-    i.nrf24_powerDown                        0x0800320c   Section        0  nrf24.o(i.nrf24_powerDown)
-    i.nrf24_powerUpRx                        0x08003228   Section        0  nrf24.o(i.nrf24_powerUpRx)
-    i.nrf24_powerUpTx                        0x08003274   Section        0  nrf24.o(i.nrf24_powerUpTx)
-    i.nrf24_readRegister                     0x08003288   Section        0  nrf24.o(i.nrf24_readRegister)
-    i.nrf24_rxFifoEmpty                      0x080032c0   Section        0  nrf24.o(i.nrf24_rxFifoEmpty)
-    i.nrf24_rx_address                       0x080032d8   Section        0  nrf24.o(i.nrf24_rx_address)
-    i.nrf24_send                             0x08003304   Section        0  nrf24.o(i.nrf24_send)
-    i.nrf24_transferSync                     0x08003370   Section        0  nrf24.o(i.nrf24_transferSync)
-    i.nrf24_transmitSync                     0x08003394   Section        0  nrf24.o(i.nrf24_transmitSync)
-    i.nrf24_tx_address                       0x080033b0   Section        0  nrf24.o(i.nrf24_tx_address)
-    i.nrf24_writeRegister                    0x080033cc   Section        0  nrf24.o(i.nrf24_writeRegister)
-    i.nrf_Init                               0x08003404   Section        0  main.o(i.nrf_Init)
-    i.onAir                                  0x08003430   Section        0  main.o(i.onAir)
-    i.readSensorResistanceValue              0x08003528   Section        0  main.o(i.readSensorResistanceValue)
-    i.setPostKey                             0x08003548   Section        0  main.o(i.setPostKey)
-    i.spi_transfer                           0x0800355c   Section        0  nrf24.o(i.spi_transfer)
-    .constdata                               0x0800357c   Section       16  stm32f1xx_hal_rcc.o(.constdata)
-    .constdata                               0x0800358c   Section      256  aes_invsbox.o(.constdata)
-    .constdata                               0x0800368c   Section       10  aes_keyschedule.o(.constdata)
-    .constdata                               0x08003696   Section      256  aes_sbox.o(.constdata)
+    i.nrf24_config                           0x080030b4   Section        0  nrf24.o(i.nrf24_config)
+    i.nrf24_configRegister                   0x08003130   Section        0  nrf24.o(i.nrf24_configRegister)
+    i.nrf24_dataReady                        0x08003164   Section        0  nrf24.o(i.nrf24_dataReady)
+    i.nrf24_getData                          0x08003184   Section        0  nrf24.o(i.nrf24_getData)
+    i.nrf24_getStatus                        0x080031c4   Section        0  nrf24.o(i.nrf24_getStatus)
+    i.nrf24_init                             0x080031ec   Section        0  nrf24.o(i.nrf24_init)
+    i.nrf24_isSending                        0x08003214   Section        0  nrf24.o(i.nrf24_isSending)
+    i.nrf24_powerDown                        0x0800322c   Section        0  nrf24.o(i.nrf24_powerDown)
+    i.nrf24_powerUpRx                        0x08003248   Section        0  nrf24.o(i.nrf24_powerUpRx)
+    i.nrf24_powerUpTx                        0x08003294   Section        0  nrf24.o(i.nrf24_powerUpTx)
+    i.nrf24_readRegister                     0x080032a8   Section        0  nrf24.o(i.nrf24_readRegister)
+    i.nrf24_rxFifoEmpty                      0x080032e0   Section        0  nrf24.o(i.nrf24_rxFifoEmpty)
+    i.nrf24_rx_address                       0x080032f8   Section        0  nrf24.o(i.nrf24_rx_address)
+    i.nrf24_send                             0x08003324   Section        0  nrf24.o(i.nrf24_send)
+    i.nrf24_transferSync                     0x08003390   Section        0  nrf24.o(i.nrf24_transferSync)
+    i.nrf24_transmitSync                     0x080033b4   Section        0  nrf24.o(i.nrf24_transmitSync)
+    i.nrf24_tx_address                       0x080033d0   Section        0  nrf24.o(i.nrf24_tx_address)
+    i.nrf24_writeRegister                    0x080033ec   Section        0  nrf24.o(i.nrf24_writeRegister)
+    i.onAir                                  0x08003424   Section        0  main.o(i.onAir)
+    i.readSensorResistanceValue              0x08003510   Section        0  main.o(i.readSensorResistanceValue)
+    i.setPostKey                             0x08003530   Section        0  main.o(i.setPostKey)
+    i.spi_transfer                           0x08003544   Section        0  nrf24.o(i.spi_transfer)
+    .constdata                               0x08003564   Section       16  stm32f1xx_hal_rcc.o(.constdata)
+    .constdata                               0x08003574   Section      256  aes_invsbox.o(.constdata)
+    .constdata                               0x08003674   Section       10  aes_keyschedule.o(.constdata)
+    .constdata                               0x0800367e   Section      256  aes_sbox.o(.constdata)
     .data                                    0x20000000   Section       20  system_stm32f1xx.o(.data)
     .data                                    0x20000014   Section        1  stm32f1xx_hal_spi_ex.o(.data)
     .data                                    0x20000018   Section        4  stm32f1xx_hal.o(.data)
@@ -975,36 +972,35 @@ Image Symbol Table
     aes_shiftcol                             0x08002f89   Thumb Code    74  aes_enc.o(i.aes_shiftcol)
     getPostKey                               0x08002fd5   Thumb Code    16  main.o(i.getPostKey)
     gf256mul                                 0x08002fe9   Thumb Code    42  gf256mul.o(i.gf256mul)
-    main                                     0x08003015   Thumb Code   114  main.o(i.main)
-    nrf24_config                             0x08003095   Thumb Code   118  nrf24.o(i.nrf24_config)
-    nrf24_configRegister                     0x08003111   Thumb Code    48  nrf24.o(i.nrf24_configRegister)
-    nrf24_dataReady                          0x08003145   Thumb Code    32  nrf24.o(i.nrf24_dataReady)
-    nrf24_getData                            0x08003165   Thumb Code    54  nrf24.o(i.nrf24_getData)
-    nrf24_getStatus                          0x080031a5   Thumb Code    36  nrf24.o(i.nrf24_getStatus)
-    nrf24_init                               0x080031cd   Thumb Code    32  nrf24.o(i.nrf24_init)
-    nrf24_isSending                          0x080031f5   Thumb Code    22  nrf24.o(i.nrf24_isSending)
-    nrf24_powerDown                          0x0800320d   Thumb Code    24  nrf24.o(i.nrf24_powerDown)
-    nrf24_powerUpRx                          0x08003229   Thumb Code    70  nrf24.o(i.nrf24_powerUpRx)
-    nrf24_powerUpTx                          0x08003275   Thumb Code    20  nrf24.o(i.nrf24_powerUpTx)
-    nrf24_readRegister                       0x08003289   Thumb Code    50  nrf24.o(i.nrf24_readRegister)
-    nrf24_rxFifoEmpty                        0x080032c1   Thumb Code    22  nrf24.o(i.nrf24_rxFifoEmpty)
-    nrf24_rx_address                         0x080032d9   Thumb Code    38  nrf24.o(i.nrf24_rx_address)
-    nrf24_send                               0x08003305   Thumb Code    98  nrf24.o(i.nrf24_send)
-    nrf24_transferSync                       0x08003371   Thumb Code    34  nrf24.o(i.nrf24_transferSync)
-    nrf24_transmitSync                       0x08003395   Thumb Code    22  nrf24.o(i.nrf24_transmitSync)
-    nrf24_tx_address                         0x080033b1   Thumb Code    26  nrf24.o(i.nrf24_tx_address)
-    nrf24_writeRegister                      0x080033cd   Thumb Code    52  nrf24.o(i.nrf24_writeRegister)
-    nrf_Init                                 0x08003405   Thumb Code    30  main.o(i.nrf_Init)
-    onAir                                    0x08003431   Thumb Code   226  main.o(i.onAir)
-    readSensorResistanceValue                0x08003529   Thumb Code    26  main.o(i.readSensorResistanceValue)
-    setPostKey                               0x08003549   Thumb Code    14  main.o(i.setPostKey)
-    spi_transfer                             0x0800355d   Thumb Code    28  nrf24.o(i.spi_transfer)
-    aAPBAHBPrescTable                        0x0800357c   Data          16  stm32f1xx_hal_rcc.o(.constdata)
-    aes_invsbox                              0x0800358c   Data         256  aes_invsbox.o(.constdata)
-    rc_tab                                   0x0800368c   Data          10  aes_keyschedule.o(.constdata)
-    aes_sbox                                 0x08003696   Data         256  aes_sbox.o(.constdata)
-    Region$$Table$$Base                      0x08003798   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x080037b8   Number         0  anon$$obj.o(Region$$Table)
+    main                                     0x08003015   Thumb Code   136  main.o(i.main)
+    nrf24_config                             0x080030b5   Thumb Code   118  nrf24.o(i.nrf24_config)
+    nrf24_configRegister                     0x08003131   Thumb Code    48  nrf24.o(i.nrf24_configRegister)
+    nrf24_dataReady                          0x08003165   Thumb Code    32  nrf24.o(i.nrf24_dataReady)
+    nrf24_getData                            0x08003185   Thumb Code    54  nrf24.o(i.nrf24_getData)
+    nrf24_getStatus                          0x080031c5   Thumb Code    36  nrf24.o(i.nrf24_getStatus)
+    nrf24_init                               0x080031ed   Thumb Code    32  nrf24.o(i.nrf24_init)
+    nrf24_isSending                          0x08003215   Thumb Code    22  nrf24.o(i.nrf24_isSending)
+    nrf24_powerDown                          0x0800322d   Thumb Code    24  nrf24.o(i.nrf24_powerDown)
+    nrf24_powerUpRx                          0x08003249   Thumb Code    70  nrf24.o(i.nrf24_powerUpRx)
+    nrf24_powerUpTx                          0x08003295   Thumb Code    20  nrf24.o(i.nrf24_powerUpTx)
+    nrf24_readRegister                       0x080032a9   Thumb Code    50  nrf24.o(i.nrf24_readRegister)
+    nrf24_rxFifoEmpty                        0x080032e1   Thumb Code    22  nrf24.o(i.nrf24_rxFifoEmpty)
+    nrf24_rx_address                         0x080032f9   Thumb Code    38  nrf24.o(i.nrf24_rx_address)
+    nrf24_send                               0x08003325   Thumb Code    98  nrf24.o(i.nrf24_send)
+    nrf24_transferSync                       0x08003391   Thumb Code    34  nrf24.o(i.nrf24_transferSync)
+    nrf24_transmitSync                       0x080033b5   Thumb Code    22  nrf24.o(i.nrf24_transmitSync)
+    nrf24_tx_address                         0x080033d1   Thumb Code    26  nrf24.o(i.nrf24_tx_address)
+    nrf24_writeRegister                      0x080033ed   Thumb Code    52  nrf24.o(i.nrf24_writeRegister)
+    onAir                                    0x08003425   Thumb Code   216  main.o(i.onAir)
+    readSensorResistanceValue                0x08003511   Thumb Code    26  main.o(i.readSensorResistanceValue)
+    setPostKey                               0x08003531   Thumb Code    14  main.o(i.setPostKey)
+    spi_transfer                             0x08003545   Thumb Code    28  nrf24.o(i.spi_transfer)
+    aAPBAHBPrescTable                        0x08003564   Data          16  stm32f1xx_hal_rcc.o(.constdata)
+    aes_invsbox                              0x08003574   Data         256  aes_invsbox.o(.constdata)
+    rc_tab                                   0x08003674   Data          10  aes_keyschedule.o(.constdata)
+    aes_sbox                                 0x0800367e   Data         256  aes_sbox.o(.constdata)
+    Region$$Table$$Base                      0x08003780   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080037a0   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x20000000   Data           4  system_stm32f1xx.o(.data)
     AHBPrescTable                            0x20000004   Data          16  system_stm32f1xx.o(.data)
     uCRCErrorWorkaroundCheck                 0x20000014   Data           1  stm32f1xx_hal_spi_ex.o(.data)
@@ -1027,26 +1023,26 @@ Memory Map of the image
 
   Image Entry point : 0x080000ed
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00003800, Max: 0x00020000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000037e8, Max: 0x00020000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x000037b8, Max: 0x00020000, ABSOLUTE)
+    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x000037a0, Max: 0x00020000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x08000000   0x000000ec   Data   RO         1867    RESET               startup_stm32f103xb.o
-    0x080000ec   0x00000000   Code   RO         2240  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x080000ec   0x00000004   Code   RO         2252    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x080000f0   0x00000004   Code   RO         2255    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x080000f4   0x00000000   Code   RO         2257    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x080000f4   0x00000000   Code   RO         2259    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x080000f4   0x00000008   Code   RO         2260    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x080000fc   0x00000000   Code   RO         2262    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x080000fc   0x00000000   Code   RO         2264    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x080000fc   0x00000004   Code   RO         2253    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
-    0x08000100   0x00000024   Code   RO         1868    .text               startup_stm32f103xb.o
-    0x08000124   0x00000024   Code   RO         2245    .text               mc_w.l(rand.o)
-    0x08000148   0x00000024   Code   RO         2248    .text               mc_w.l(memcpya.o)
-    0x0800016c   0x00000024   Code   RO         2266    .text               mc_w.l(init.o)
+    0x08000000   0x000000ec   Data   RO         1861    RESET               startup_stm32f103xb.o
+    0x080000ec   0x00000000   Code   RO         2234  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x080000ec   0x00000004   Code   RO         2246    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x080000f0   0x00000004   Code   RO         2249    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x080000f4   0x00000000   Code   RO         2251    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x080000f4   0x00000000   Code   RO         2253    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x080000f4   0x00000008   Code   RO         2254    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x080000fc   0x00000000   Code   RO         2256    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x080000fc   0x00000000   Code   RO         2258    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x080000fc   0x00000004   Code   RO         2247    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x08000100   0x00000024   Code   RO         1862    .text               startup_stm32f103xb.o
+    0x08000124   0x00000024   Code   RO         2239    .text               mc_w.l(rand.o)
+    0x08000148   0x00000024   Code   RO         2242    .text               mc_w.l(memcpya.o)
+    0x0800016c   0x00000024   Code   RO         2260    .text               mc_w.l(init.o)
     0x08000190   0x0000001a   Code   RO          956    i.HAL_Delay         stm32f1xx_hal.o
     0x080001aa   0x00000002   PAD
     0x080001ac   0x0000031c   Code   RO          281    i.HAL_GPIO_Init     stm32f1xx_hal_gpio.o
@@ -1101,65 +1097,64 @@ Memory Map of the image
     0x080027f0   0x0000002e   Code   RO         1339    i.RTC_WriteAlarmCounter  stm32f1xx_hal_rtc.o
     0x0800281e   0x0000002e   Code   RO         1340    i.RTC_WriteTimeCounter  stm32f1xx_hal_rtc.o
     0x0800284c   0x00000114   Code   RO          528    i.SPI_WaitOnFlagUntilTimeout  stm32f1xx_hal_spi.o
-    0x08002960   0x0000000c   Code   RO         1841    i.SysTick_Handler   stm32f1xx_it.o
+    0x08002960   0x0000000c   Code   RO         1835    i.SysTick_Handler   stm32f1xx_it.o
     0x0800296c   0x00000058   Code   RO         1713    i.SystemClock_Config  main.o
     0x080029c4   0x00000058   Code   RO            5    i.SystemInit        system_stm32f1xx.o
-    0x08002a1c   0x0000000e   Code   RO         2270    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x08002a2a   0x00000002   Code   RO         2271    i.__scatterload_null  mc_w.l(handlers.o)
-    0x08002a2c   0x0000000e   Code   RO         2272    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x08002a3a   0x00000012   Code   RO         2003    i.aes128_dec        aes128_dec.o
-    0x08002a4c   0x00000012   Code   RO         2015    i.aes128_enc        aes128_enc.o
-    0x08002a5e   0x00000012   Code   RO         1955    i.aes128_init       aes_keyschedule.o
-    0x08002a70   0x0000004c   Code   RO         1872    i.aes_dec_firstround  aes_dec.o
-    0x08002abc   0x00000160   Code   RO         1873    i.aes_dec_round     aes_dec.o
-    0x08002c1c   0x00000046   Code   RO         1874    i.aes_decrypt_core  aes_dec.o
+    0x08002a1c   0x0000000e   Code   RO         2264    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x08002a2a   0x00000002   Code   RO         2265    i.__scatterload_null  mc_w.l(handlers.o)
+    0x08002a2c   0x0000000e   Code   RO         2266    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x08002a3a   0x00000012   Code   RO         1997    i.aes128_dec        aes128_dec.o
+    0x08002a4c   0x00000012   Code   RO         2009    i.aes128_enc        aes128_enc.o
+    0x08002a5e   0x00000012   Code   RO         1949    i.aes128_init       aes_keyschedule.o
+    0x08002a70   0x0000004c   Code   RO         1866    i.aes_dec_firstround  aes_dec.o
+    0x08002abc   0x00000160   Code   RO         1867    i.aes_dec_round     aes_dec.o
+    0x08002c1c   0x00000046   Code   RO         1868    i.aes_decrypt_core  aes_dec.o
     0x08002c62   0x00000002   PAD
-    0x08002c64   0x0000004c   Code   RO         1916    i.aes_enc_lastround  aes_enc.o
-    0x08002cb0   0x00000138   Code   RO         1917    i.aes_enc_round     aes_enc.o
-    0x08002de8   0x00000046   Code   RO         1918    i.aes_encrypt_core  aes_enc.o
+    0x08002c64   0x0000004c   Code   RO         1910    i.aes_enc_lastround  aes_enc.o
+    0x08002cb0   0x00000138   Code   RO         1911    i.aes_enc_round     aes_enc.o
+    0x08002de8   0x00000046   Code   RO         1912    i.aes_encrypt_core  aes_enc.o
     0x08002e2e   0x00000002   PAD
-    0x08002e30   0x000000f4   Code   RO         1958    i.aes_init          aes_keyschedule.o
-    0x08002f24   0x00000052   Code   RO         1875    i.aes_invshiftcol   aes_dec.o
-    0x08002f76   0x00000012   Code   RO         1959    i.aes_rotword       aes_keyschedule.o
-    0x08002f88   0x0000004a   Code   RO         1919    i.aes_shiftcol      aes_enc.o
+    0x08002e30   0x000000f4   Code   RO         1952    i.aes_init          aes_keyschedule.o
+    0x08002f24   0x00000052   Code   RO         1869    i.aes_invshiftcol   aes_dec.o
+    0x08002f76   0x00000012   Code   RO         1953    i.aes_rotword       aes_keyschedule.o
+    0x08002f88   0x0000004a   Code   RO         1913    i.aes_shiftcol      aes_enc.o
     0x08002fd2   0x00000002   PAD
     0x08002fd4   0x00000014   Code   RO         1715    i.getPostKey        main.o
-    0x08002fe8   0x0000002a   Code   RO         2075    i.gf256mul          gf256mul.o
+    0x08002fe8   0x0000002a   Code   RO         2069    i.gf256mul          gf256mul.o
     0x08003012   0x00000002   PAD
-    0x08003014   0x00000080   Code   RO         1716    i.main              main.o
-    0x08003094   0x0000007c   Code   RO         2090    i.nrf24_config      nrf24.o
-    0x08003110   0x00000034   Code   RO         2091    i.nrf24_configRegister  nrf24.o
-    0x08003144   0x00000020   Code   RO         2092    i.nrf24_dataReady   nrf24.o
-    0x08003164   0x00000040   Code   RO         2093    i.nrf24_getData     nrf24.o
-    0x080031a4   0x00000028   Code   RO         2094    i.nrf24_getStatus   nrf24.o
-    0x080031cc   0x00000028   Code   RO         2095    i.nrf24_init        nrf24.o
-    0x080031f4   0x00000016   Code   RO         2096    i.nrf24_isSending   nrf24.o
-    0x0800320a   0x00000002   PAD
-    0x0800320c   0x0000001c   Code   RO         2099    i.nrf24_powerDown   nrf24.o
-    0x08003228   0x0000004c   Code   RO         2100    i.nrf24_powerUpRx   nrf24.o
-    0x08003274   0x00000014   Code   RO         2101    i.nrf24_powerUpTx   nrf24.o
-    0x08003288   0x00000038   Code   RO         2102    i.nrf24_readRegister  nrf24.o
-    0x080032c0   0x00000016   Code   RO         2104    i.nrf24_rxFifoEmpty  nrf24.o
-    0x080032d6   0x00000002   PAD
-    0x080032d8   0x0000002c   Code   RO         2105    i.nrf24_rx_address  nrf24.o
-    0x08003304   0x0000006c   Code   RO         2106    i.nrf24_send        nrf24.o
-    0x08003370   0x00000022   Code   RO         2107    i.nrf24_transferSync  nrf24.o
-    0x08003392   0x00000002   PAD
-    0x08003394   0x0000001c   Code   RO         2108    i.nrf24_transmitSync  nrf24.o
-    0x080033b0   0x0000001a   Code   RO         2109    i.nrf24_tx_address  nrf24.o
-    0x080033ca   0x00000002   PAD
-    0x080033cc   0x00000038   Code   RO         2110    i.nrf24_writeRegister  nrf24.o
-    0x08003404   0x0000002c   Code   RO         1717    i.nrf_Init          main.o
-    0x08003430   0x000000f8   Code   RO         1718    i.onAir             main.o
-    0x08003528   0x00000020   Code   RO         1719    i.readSensorResistanceValue  main.o
-    0x08003548   0x00000014   Code   RO         1720    i.setPostKey        main.o
-    0x0800355c   0x00000020   Code   RO         2111    i.spi_transfer      nrf24.o
-    0x0800357c   0x00000010   Data   RO         1222    .constdata          stm32f1xx_hal_rcc.o
-    0x0800358c   0x00000100   Data   RO         1948    .constdata          aes_invsbox.o
-    0x0800368c   0x0000000a   Data   RO         1960    .constdata          aes_keyschedule.o
-    0x08003696   0x00000100   Data   RO         1996    .constdata          aes_sbox.o
-    0x08003796   0x00000002   PAD
-    0x08003798   0x00000020   Data   RO         2268    Region$$Table       anon$$obj.o
+    0x08003014   0x000000a0   Code   RO         1716    i.main              main.o
+    0x080030b4   0x0000007c   Code   RO         2084    i.nrf24_config      nrf24.o
+    0x08003130   0x00000034   Code   RO         2085    i.nrf24_configRegister  nrf24.o
+    0x08003164   0x00000020   Code   RO         2086    i.nrf24_dataReady   nrf24.o
+    0x08003184   0x00000040   Code   RO         2087    i.nrf24_getData     nrf24.o
+    0x080031c4   0x00000028   Code   RO         2088    i.nrf24_getStatus   nrf24.o
+    0x080031ec   0x00000028   Code   RO         2089    i.nrf24_init        nrf24.o
+    0x08003214   0x00000016   Code   RO         2090    i.nrf24_isSending   nrf24.o
+    0x0800322a   0x00000002   PAD
+    0x0800322c   0x0000001c   Code   RO         2093    i.nrf24_powerDown   nrf24.o
+    0x08003248   0x0000004c   Code   RO         2094    i.nrf24_powerUpRx   nrf24.o
+    0x08003294   0x00000014   Code   RO         2095    i.nrf24_powerUpTx   nrf24.o
+    0x080032a8   0x00000038   Code   RO         2096    i.nrf24_readRegister  nrf24.o
+    0x080032e0   0x00000016   Code   RO         2098    i.nrf24_rxFifoEmpty  nrf24.o
+    0x080032f6   0x00000002   PAD
+    0x080032f8   0x0000002c   Code   RO         2099    i.nrf24_rx_address  nrf24.o
+    0x08003324   0x0000006c   Code   RO         2100    i.nrf24_send        nrf24.o
+    0x08003390   0x00000022   Code   RO         2101    i.nrf24_transferSync  nrf24.o
+    0x080033b2   0x00000002   PAD
+    0x080033b4   0x0000001c   Code   RO         2102    i.nrf24_transmitSync  nrf24.o
+    0x080033d0   0x0000001a   Code   RO         2103    i.nrf24_tx_address  nrf24.o
+    0x080033ea   0x00000002   PAD
+    0x080033ec   0x00000038   Code   RO         2104    i.nrf24_writeRegister  nrf24.o
+    0x08003424   0x000000ec   Code   RO         1717    i.onAir             main.o
+    0x08003510   0x00000020   Code   RO         1718    i.readSensorResistanceValue  main.o
+    0x08003530   0x00000014   Code   RO         1719    i.setPostKey        main.o
+    0x08003544   0x00000020   Code   RO         2105    i.spi_transfer      nrf24.o
+    0x08003564   0x00000010   Data   RO         1222    .constdata          stm32f1xx_hal_rcc.o
+    0x08003574   0x00000100   Data   RO         1942    .constdata          aes_invsbox.o
+    0x08003674   0x0000000a   Data   RO         1954    .constdata          aes_keyschedule.o
+    0x0800367e   0x00000100   Data   RO         1990    .constdata          aes_sbox.o
+    0x0800377e   0x00000002   PAD
+    0x08003780   0x00000020   Data   RO         2262    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00000578, Max: 0x00005000, ABSOLUTE)
@@ -1170,14 +1165,14 @@ Memory Map of the image
     0x20000014   0x00000001   Data   RW          346    .data               stm32f1xx_hal_spi_ex.o
     0x20000015   0x00000003   PAD
     0x20000018   0x00000004   Data   RW          968    .data               stm32f1xx_hal.o
-    0x2000001c   0x0000001f   Data   RW         1722    .data               main.o
+    0x2000001c   0x0000001f   Data   RW         1721    .data               main.o
     0x2000003b   0x00000001   PAD
-    0x2000003c   0x00000005   Data   RW         2112    .data               nrf24.o
+    0x2000003c   0x00000005   Data   RW         2106    .data               nrf24.o
     0x20000041   0x00000003   PAD
-    0x20000044   0x00000004   Data   RW         2246    .data               mc_w.l(rand.o)
-    0x20000048   0x0000012c   Zero   RW         1721    .bss                main.o
+    0x20000044   0x00000004   Data   RW         2240    .data               mc_w.l(rand.o)
+    0x20000048   0x0000012c   Zero   RW         1720    .bss                main.o
     0x20000174   0x00000004   PAD
-    0x20000178   0x00000400   Zero   RW         1865    STACK               startup_stm32f103xb.o
+    0x20000178   0x00000400   Zero   RW         1859    STACK               startup_stm32f103xb.o
 
 
 ==============================================================================
@@ -1195,7 +1190,7 @@ Image component sizes
        280         10         10          0          0       2506   aes_keyschedule.o
          0          0        256          0          0        431   aes_sbox.o
         42          0          0          0          0        663   gf256mul.o
-      1032        100          0         31        300       8085   main.o
+      1008         94          0         31        300       7666   main.o
        904         78          0          5          0      10910   nrf24.o
         36          8        236          0       1024        888   startup_stm32f103xb.o
        130         16          0          4          0       3582   stm32f1xx_hal.o
@@ -1212,7 +1207,7 @@ Image component sizes
         88         18          0         20          0     226721   system_stm32f1xx.o
 
     ----------------------------------------------------------------------
-     13298        532        808         68       1328     322264   Object Totals
+     13274        526        808         68       1328     321845   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         20          0          2          7          4          0   (incl. Padding)
 
@@ -1253,15 +1248,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     13456        558        808         72       1328     317956   Grand Totals
-     13456        558        808         72       1328     317956   ELF Image Totals
-     13456        558        808         72          0          0   ROM Totals
+     13432        552        808         72       1328     317589   Grand Totals
+     13432        552        808         72       1328     317589   ELF Image Totals
+     13432        552        808         72          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                14264 (  13.93kB)
+    Total RO  Size (Code + RO Data)                14240 (  13.91kB)
     Total RW  Size (RW Data + ZI Data)              1400 (   1.37kB)
-    Total ROM Size (Code + RO Data + RW Data)      14336 (  14.00kB)
+    Total ROM Size (Code + RO Data + RW Data)      14312 (  13.98kB)
 
 ==============================================================================
 

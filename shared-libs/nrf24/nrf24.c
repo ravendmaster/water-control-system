@@ -131,6 +131,7 @@ void nrf24_powerDown()
 {
     CE_LOW;
     nrf24_configRegister(CONFIG,nrf24_CONFIG);
+
 }
 
 // Sends a data package to the default address. Be sure to send the correct
