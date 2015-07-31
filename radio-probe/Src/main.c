@@ -130,13 +130,13 @@ uint8_t onAir(uint16_t accidient){
 	else{
 		probeData->sensor_val=4095;}
 	
-	probeData->crc=0x00;
+	probeData->crc=0xf0f0f0f0;
 	
-	srand(probeBlock.token);
-	for(int i=sizeof(probeData);i<sizeof(probeBlock.data);i++)
-	{
-		probeBlock.data[i]=rand()%255;
-	}
+	//srand(probeBlock.token);
+	//for(int i=sizeof(probeData);i<sizeof(probeBlock.data);i++)
+	//{
+		//probeBlock.data[i]=rand()%255;
+	//}
 
 	// רטפנףול
 	aes128_enc(&probeBlock, &AES_ctx);
@@ -248,9 +248,10 @@ int main(void)
 		nrf24_tx_address(master_controller_address);
 		nrf24_rx_address(zond_address);
 
-		while((onAir(accidient)!=NRF24_TRANSMISSON_OK)){};
+		//while((onAir(accidient)!=NRF24_TRANSMISSON_OK)){};
+		onAir(accidient);
 		
-		BKP->DR3=10;
+		BKP->DR3=60;
 	}
 	BKP->DR3-=1;
 	
