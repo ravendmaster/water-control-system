@@ -275,7 +275,7 @@ uint8_t nrf24_dataReady()
         return 1;
     }
 
-    return !nrf24_rxFifoEmpty();;
+    return !nrf24_rxFifoEmpty();
 }
 
 /* Reads payload bytes into data array */

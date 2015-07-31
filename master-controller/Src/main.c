@@ -1373,7 +1373,7 @@ void StartNrf24Task(void const * argument)
 //		actualToken|=getRND8();
 //	}
 
-	uint32_t lastOnAirCenter=0;
+	//uint32_t lastOnAirCenter=0;
 
 	
   /* Infinite loop */
@@ -1404,38 +1404,39 @@ void StartNrf24Task(void const * argument)
 				counter_settings_data_buff_need_save=true;
 
 				//данные в зонд
-				EncryptedBlock mainBlock;
-				ControllerData * controllerData=(ControllerData *)mainBlock.data;
-				controllerData->air_interval=getSettingsStruct()->radio_onair_interval;
-				for(int i=sizeof(ControllerData);i<sizeof(EncryptedBlock);i++)
-				{
-					probeBlock.data[i]=rand()%255;
-				}					
-				aes128_enc(&mainBlock, &AES_ctx);
-				aes128_enc(&mainBlock+16, &AES_ctx);
-				
-				osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
-				nrf24_send(&mainBlock);
-				while(nrf24_isSending()){};
+//				EncryptedBlock mainBlock;
+//				ControllerData * controllerData=(ControllerData *)mainBlock.data;
+//				controllerData->air_interval=getSettingsStruct()->radio_onair_interval;
+//				for(int i=sizeof(ControllerData);i<sizeof(EncryptedBlock);i++)
+//				{
+//					probeBlock.data[i]=rand()%255;
+//				}					
+//				aes128_enc(&mainBlock, &AES_ctx);
+//				aes128_enc(&mainBlock+16, &AES_ctx);
+//				
+//				osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
+//				nrf24_send(&mainBlock);
+//				while(nrf24_isSending()){};
 				
 		}
 		
-		if(HAL_GetTick()-lastOnAirCenter>1000)
-		{
-			lastOnAirCenter=HAL_GetTick();
-			
-			//данные в центр
-			
-			
-			nrf24_rx_address(master_controller_address);	
-			nrf24_tx_address(openhab_gate_address);
-			SettingsAndStatus * data=getSettingsStruct();	
-			nrf24_send(data);
-			while(nrf24_isSending()){};
-		}
-		nrf24_rx_address(master_controller_address);	
-		nrf24_tx_address(zond_address);
-		nrf24_powerUpRx();
+//		if(HAL_GetTick()-lastOnAirCenter>1000)
+//		{
+//			lastOnAirCenter=HAL_GetTick();
+//			
+//			//данные в центр
+//			
+//			
+//			nrf24_rx_address(master_controller_address);	
+//			nrf24_tx_address(openhab_gate_address);
+//			SettingsAndStatus * data=getSettingsStruct();	
+//			nrf24_send(data);
+//			while(nrf24_isSending()){};
+//		}
+//		
+//		nrf24_rx_address(master_controller_address);	
+//		nrf24_tx_address(zond_address);
+//		nrf24_powerUpRx();
 					
 		osSemaphoreRelease(SPI1BinarySemHandle);
 	
