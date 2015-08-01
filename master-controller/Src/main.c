@@ -1388,7 +1388,7 @@ void StartNrf24Task(void const * argument)
 
 	osSemaphoreRelease(SPI1BinarySemHandle);
 
-	uint8_t AES_key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+	//uint8_t AES_key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 	aes128_init(AES_key, &AES_ctx);
 	
 	//uint32_t actualToken;

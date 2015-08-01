@@ -86,7 +86,7 @@ void deinit()
 
 //uint8_t data_array[32];
 
-uint8_t AES_key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+//uint8_t AES_key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 aes128_ctx_t AES_ctx;
 
