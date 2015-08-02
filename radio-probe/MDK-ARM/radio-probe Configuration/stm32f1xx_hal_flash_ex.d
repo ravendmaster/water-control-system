@@ -18,7 +18,6 @@ radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Dri
 radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dma.h
 radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dma_ex.h
 radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_cortex.h
-radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_crc.h
 radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_flash.h
 radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_flash_ex.h
 radio-probe configuration\stm32f1xx_hal_flash_ex.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h

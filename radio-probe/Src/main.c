@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 31/07/2015 15:25:50
+  * Date               : 02/08/2015 14:01:26
   * Description        : Main program body
   ******************************************************************************
   *
@@ -45,8 +45,6 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-CRC_HandleTypeDef hcrc;
-
 RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi2;
@@ -59,7 +57,6 @@ SPI_HandleTypeDef hspi2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CRC_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI2_Init(void);
 
@@ -212,13 +209,115 @@ uint8_t onAir(uint16_t accidient){
 	
 }
 
+static HAL_StatusTypeDef RTC_EnterInitMode(RTC_HandleTypeDef* hrtc)
+{
+  uint32_t tickstart = 0;
+  
+  tickstart = HAL_GetTick();
+  /* Wait till RTC is in INIT state and if Time out is reached exit */
+  while((hrtc->Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET)
+  {
+    if((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE)
+    {       
+      return HAL_TIMEOUT;
+    } 
+  }
+
+  /* Disable the write protection for RTC registers */
+  __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
+  
+  
+  return HAL_OK;  
+}
+
+static HAL_StatusTypeDef RTC_ExitInitMode(RTC_HandleTypeDef* hrtc)
+{
+  uint32_t tickstart = 0;
+  
+  /* Disable the write protection for RTC registers */
+  __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+  
+  tickstart = HAL_GetTick();
+  /* Wait till RTC is in INIT state and if Time out is reached exit */
+  while((hrtc->Instance->CRL & RTC_CRL_RTOFF) == (uint32_t)RESET)
+  {
+    if((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE)
+    {       
+      return HAL_TIMEOUT;
+    } 
+  }
+  
+  return HAL_OK;  
+}
+
+static HAL_StatusTypeDef RTC_WriteAlarmCounter(RTC_HandleTypeDef* hrtc, uint32_t AlarmCounter)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  
+  /* Set Initialization mode */
+  if(RTC_EnterInitMode(hrtc) != HAL_OK)
+  {
+    status = HAL_ERROR;
+  } 
+  else
+  {
+    /* Set RTC COUNTER MSB word */
+    WRITE_REG(hrtc->Instance->ALRH, (AlarmCounter >> 16));
+    /* Set RTC COUNTER LSB word */
+    WRITE_REG(hrtc->Instance->ALRL, (AlarmCounter & RTC_ALRL_RTC_ALR));
+    
+    /* Wait for synchro */
+    if(RTC_ExitInitMode(hrtc) != HAL_OK)
+    {       
+      status = HAL_ERROR;
+    }
+  }
+
+  return status;
+}
+
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	HAL_Init();
+	SystemClock_Config();
+	MX_GPIO_Init();
+	MX_RTC_Init();
+	uint16_t accidient=isAccidient();
+	if(accidient){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET); //red
+	}
+	else{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET); //green
+	}
+	
+	if((accidient)||(BKP->DR3==0)){
+		MX_SPI2_Init();
+		onAir(accidient);
+		BKP->DR3=60;
+	}
+	BKP->DR3-=1;
+	
+	//RTC_AlarmTypeDef alarmTime;
+	//alarmTime.AlarmTime.Seconds=0;
+	//HAL_RTC_SetAlarm(&hrtc, &alarmTime, FORMAT_BCD);
+	
+	RTC_WriteAlarmCounter(&hrtc, 0);
+		
+	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
+		
+	HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);	
+  while (1)
+  {
+		HAL_PWR_EnterSTANDBYMode();
+	}
+		
+		
+	
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -231,52 +330,18 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_CRC_Init();
   MX_RTC_Init();
   MX_SPI2_Init();
 
   /* USER CODE BEGIN 2 */
-	uint16_t accidient=isAccidient();
-	
-	if(accidient){
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET); //red
-	}
-	else{
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET); //green
-	}
-	
-	if((accidient)||(BKP->DR3==0))
-		{
-		
 
 
-		//while((onAir(accidient)!=NRF24_TRANSMISSON_OK)){};
-		onAir(accidient);
-		
-		BKP->DR3=3;
-	}
-	BKP->DR3-=1;
-	
-
-	MX_RTC_Init();
-		
-	RTC_AlarmTypeDef alarmTime;
-	alarmTime.AlarmTime.Seconds=0;
-	HAL_RTC_SetAlarm(&hrtc, &alarmTime, FORMAT_BCD);
-		
-	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
-	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
-		
-	HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);	
-
-		
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		HAL_PWR_EnterSTANDBYMode();
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -306,7 +371,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV16;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
@@ -314,15 +379,6 @@ void SystemClock_Config(void)
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
-
-}
-
-/* CRC init function */
-void MX_CRC_Init(void)
-{
-
-  hcrc.Instance = CRC;
-  HAL_CRC_Init(&hcrc);
 
 }
 
@@ -344,7 +400,7 @@ void MX_RTC_Init(void)
   hrtc.DateToUpdate.Year = 0;
   HAL_RTC_Init(&hrtc);
 
-  sTime.Hours = 0;
+ sTime.Hours = 0;
   sTime.Minutes = 0;
   sTime.Seconds = 0;
   HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BCD);

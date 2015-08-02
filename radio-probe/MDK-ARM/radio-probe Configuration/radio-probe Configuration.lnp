@@ -16,8 +16,6 @@
 "radio-probe configuration\stm32f1xx_hal_rtc_ex.o"
 "radio-probe configuration\stm32f1xx_hal_adc.o"
 "radio-probe configuration\stm32f1xx_hal_adc_ex.o"
-"radio-probe configuration\stm32f1xx_hal_crc.o"
-"radio-probe configuration\stm32f1xx_hal_iwdg.o"
 "radio-probe configuration\stm32f1xx_hal_msp.o"
 "radio-probe configuration\main.o"
 "radio-probe configuration\stm32f1xx_it.o"
