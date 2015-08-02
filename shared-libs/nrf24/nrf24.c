@@ -83,18 +83,18 @@ void nrf24_rx_address(uint8_t * adr)
     CE_HIGH;
 }
 
-/* Returns the payload length */
-uint8_t nrf24_payload_length()
-{
-    return nrf24_payload_len;
-}
-
 /* Set the TX address */
 void nrf24_tx_address(uint8_t* adr)
 {
     /* RX_ADDR_P0 must be set to the sending addr for auto ack to work. */
     nrf24_writeRegister(RX_ADDR_P0,adr,nrf24_ADDR_LEN);
     nrf24_writeRegister(TX_ADDR,adr,nrf24_ADDR_LEN);
+}
+
+/* Returns the payload length */
+uint8_t nrf24_payload_length()
+{
+    return nrf24_payload_len;
 }
 
 /* configure the module */

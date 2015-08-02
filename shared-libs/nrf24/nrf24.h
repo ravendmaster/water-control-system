@@ -122,6 +122,7 @@
 
 extern uint8_t nrf24_payload_len;
 
+void nrf24_writeRegister(uint8_t reg, uint8_t* value, uint8_t len);
 void nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len);
 void nrf24_writeAckPayload(uint8_t pipe, const void* buf, uint8_t len);
 void nrf24_init(SPI_HandleTypeDef * hspi);
