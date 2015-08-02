@@ -24,6 +24,24 @@ void nrf24_transmitSync(uint8_t* dataout,uint8_t len)
 	HAL_SPI_Transmit(nrf24_hspi, dataout, len, 100);
 }
 
+#define W_ACK_PAYLOAD 0xA8
+
+uint32_t min(uint32_t a, uint32_t b){
+	return a<b ? a : b;
+}
+
+void nrf24_writeAckPayload(uint8_t pipe, const void* buf, uint8_t len)
+{
+	const uint8_t * current = buf;
+  CSN_LOW;
+  spi_transfer( W_ACK_PAYLOAD | ( pipe & 7 ) ); //B111
+  const uint8_t max_payload_size = 32;
+  uint8_t data_len = min(len,max_payload_size);
+  while ( data_len-- )
+  spi_transfer(*current++);
+
+  CSN_HIGH;
+}
 
 void nrf24_configRegister(uint8_t reg, uint8_t value)
 {
@@ -97,9 +115,9 @@ void nrf24_config(uint8_t channel, uint8_t pay_length)
     nrf24_configRegister(RX_PW_P5, 0x00); // Pipe not used 
 
     // 1 Mbps, TX gain: 0dbm
-		//nrf24_configRegister(RF_SETUP, (0<<RF_DR)|((0x03)<<RF_PWR));
+		nrf24_configRegister(RF_SETUP, (0<<RF_DR)|((0x00)<<RF_PWR));
 		//256
-		nrf24_configRegister(RF_SETUP, (1<<RF_DR_LOW)|((0x03)<<RF_PWR));
+		//nrf24_configRegister(RF_SETUP, (1<<RF_DR_LOW)|((0x03)<<RF_PWR));
 
     // CRC enable, 1 byte CRC length
     nrf24_configRegister(CONFIG,nrf24_CONFIG);

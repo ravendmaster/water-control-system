@@ -33,6 +33,7 @@
 #define RX_PW_P5    0x16
 #define FIFO_STATUS 0x17
 #define DYNPD       0x1C
+#define FEATURE	    0x1D
 
 /* Bit Mnemonics */
 
@@ -119,6 +120,10 @@
 #define NRF24_TRANSMISSON_OK 0
 #define NRF24_MESSAGE_LOST   1
 
+extern uint8_t nrf24_payload_len;
+
+void nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len);
+void nrf24_writeAckPayload(uint8_t pipe, const void* buf, uint8_t len);
 void nrf24_init(SPI_HandleTypeDef * hspi);
 void nrf24_config(uint8_t channel, uint8_t pay_length);
 void nrf24_tx_address(uint8_t* adr);
@@ -131,3 +136,4 @@ void nrf24_powerDown(void);
 uint8_t nrf24_dataReady(void);
 void nrf24_getData(void * data);
 void nrf24_powerUpRx(void);
+void nrf24_configRegister(uint8_t reg, uint8_t value);

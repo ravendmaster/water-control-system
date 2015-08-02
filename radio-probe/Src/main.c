@@ -83,11 +83,6 @@ void deinit()
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
-
-//uint8_t data_array[32];
-
-//uint8_t AES_key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-
 aes128_ctx_t AES_ctx;
 
 uint8_t phrase[16];
@@ -113,10 +108,16 @@ void setPostKey(uint32_t key)
 		BKP->DR2=key>>16;	
 }
 
+void xprintf(void * ptr, ...)
+{
+}
+
 uint8_t onAir(uint16_t accidient){
 	
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);//green
 	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3);//blue
+	
+	nrf24_init(&hspi2);
 	
 	aes128_init(AES_key, &AES_ctx);
 	EncryptedBlock probeBlock;
@@ -142,19 +143,23 @@ uint8_t onAir(uint16_t accidient){
 	aes128_enc(&probeBlock, &AES_ctx);
 	aes128_enc(&probeBlock+16, &AES_ctx);
 
+	nrf24_config(99,32);	
+	nrf24_tx_address(master_controller_address);
+	nrf24_rx_address(zond_address);
+		
 	/* Automatically goes to TX mode */
 	nrf24_send((uint8_t*)&probeBlock);        
 
 	
 	/* Wait for transmission to end */
 	while(nrf24_isSending()){};
-
+		
 	/* Make analysis on last tranmission attempt */
 	uint8_t temp = nrf24_lastMessageStatus();
 
 	if(temp == NRF24_TRANSMISSON_OK)
 	{                    
-			//xprintf("> Tranmission went OK\r\n");
+			xprintf("> Tranmission went OK\r\n");
 	}
 	else if(temp == NRF24_MESSAGE_LOST)
 	{   
@@ -165,13 +170,13 @@ uint8_t onAir(uint16_t accidient){
 //				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);		
 //				HAL_Delay(20);
 //			}
-						//xprintf("> Message is lost ...\r\n");    
+			xprintf("> Message is lost ...\r\n");    
 		//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 	}
 	
 	/* Retranmission count indicates the tranmission quality */
-	//temp = nrf24_retransmissionCount();
-	//xprintf("> Retranmission count: %d\r\n",temp);
+	temp = nrf24_retransmissionCount();
+	xprintf("> Retranmission count: %d\r\n",temp);
 
 	
 	
@@ -243,15 +248,12 @@ int main(void)
 	if((accidient)||(BKP->DR3==0))
 		{
 		
-		nrf24_init(&hspi2);
-		nrf24_config(99,32);	
-		nrf24_tx_address(master_controller_address);
-		nrf24_rx_address(zond_address);
+
 
 		//while((onAir(accidient)!=NRF24_TRANSMISSON_OK)){};
 		onAir(accidient);
 		
-		BKP->DR3=60;
+		BKP->DR3=3;
 	}
 	BKP->DR3-=1;
 	
