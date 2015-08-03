@@ -3,7 +3,7 @@
 <title>Static Call Graph - [radio-probe Configuration\radio-probe Configuration.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image radio-probe Configuration\radio-probe Configuration.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Mon Aug 03 11:57:36 2015
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Mon Aug 03 14:50:14 2015
 <BR><P>
 <H3>Maximum Stack Usage =        160 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -692,7 +692,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[7a]"></a>nrf24_config</STRONG> (Thumb, 126 bytes, Stack size 16 bytes, nrf24.o(i.nrf24_config))
+<P><STRONG><a name="[7a]"></a>nrf24_config</STRONG> (Thumb, 124 bytes, Stack size 16 bytes, nrf24.o(i.nrf24_config))
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = nrf24_config &rArr; nrf24_configRegister &rArr; spi_transfer &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf24_configRegister
@@ -753,8 +753,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf24_sendDL
 </UL>
 
-<P><STRONG><a name="[82]"></a>nrf24_rx_address</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, nrf24.o(i.nrf24_rx_address))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = nrf24_rx_address &rArr; nrf24_writeRegister &rArr; spi_transfer &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitOnFlagUntilTimeout
+<P><STRONG><a name="[82]"></a>nrf24_rx_address</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, nrf24.o(i.nrf24_rx_address))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = nrf24_rx_address &rArr; nrf24_writeRegister &rArr; spi_transfer &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf24_writeRegister
@@ -801,7 +801,7 @@ Global Symbols
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nrf24_rx_address
 </UL>
 
-<P><STRONG><a name="[77]"></a>onAir</STRONG> (Thumb, 130 bytes, Stack size 48 bytes, main.o(i.onAir))
+<P><STRONG><a name="[77]"></a>onAir</STRONG> (Thumb, 132 bytes, Stack size 48 bytes, main.o(i.onAir))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = onAir &rArr; nrf24_sendDL &rArr; nrf24_powerUpTx &rArr; nrf24_configRegister &rArr; spi_transfer &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin

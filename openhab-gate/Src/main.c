@@ -145,7 +145,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	nrf24_init(&hspi2);
 	
-	nrf24_config(2,32);
+	nrf24_config(99,32);
 	nrf24_powerUpRx();
 	
 	//uint8_t tx_address[5] = {0x28,0xD7,0xD7,0xD7,0xD7};
@@ -157,7 +157,7 @@ int main(void)
   
 	
   //nrf24_tx_address(tx_address);
-  nrf24_rx_address(openhab_gate_address);	
+  nrf24_rx_address(RX_ADDR_P1, openhab_gate_address);	
 	uint8_t buff[32];
 	
   /* USER CODE END 2 */

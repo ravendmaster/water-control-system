@@ -141,8 +141,8 @@ void onAir(uint16_t accidient){
 	//aes128_enc(&probeBlock+16, &AES_ctx);
 
 	nrf24_config(99,32);	
-	nrf24_tx_address(master_controller_address);
-	nrf24_rx_address(zond_address);
+	nrf24_tx_address(master_controller_address_pipe1);
+	nrf24_rx_address(RX_ADDR_P1, zond_address);
 		
 		
     // Dynamic length configurations: No dynamic length
