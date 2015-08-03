@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Thu Jul 30 19:25:13 MSK 2015
+#Mon Aug 03 18:04:38 MSK 2015
 File.Version=5
 KeepUserPlacement=true
 Mcu.Family=STM32F4
@@ -58,6 +58,7 @@ MxCube.Version=4.7.1
 MxDb.Version=DB.4.0.71
 NVIC.PriorityGroup=NVIC_PRIORITYGROUP_0
 NVIC.SysTick_IRQn=true\:0\:0\:true
+NVIC.USART3_IRQn=true\:0\:0\:false
 PA0-WKUP.GPIOParameters=GPIO_PuPd,GPIO_Label,GPIO_ModeDefaultEXTI
 PA0-WKUP.GPIO_Label=B1 [Blue PushButton]
 PA0-WKUP.GPIO_ModeDefaultEXTI=GPIO_MODE_EVT_RISING
@@ -339,7 +340,7 @@ RCC.HCLKFreq_Value=168000000
 RCC.HSE_VALUE=8000000
 RCC.HSI_VALUE=16000000
 RCC.I2SClocksFreq_Value=96000000
-RCC.IPParameters=PLLSource,LSI_VALUE,APB1TimFreq_Value,APB2Freq_Value,MCO2PinFreq_Value,APB1CLKDivider,FCLKCortexFreq_Value,48MHZClocksFreq_Value,AHBFreq_Value,VCOInputFreq_Value,I2SClocksFreq_Value,PLLSourceVirtual,SYSCLKFreq_VALUE,PLLQ,SYSCLKSource,LSE_VALUE,HSE_VALUE,HSI_VALUE,VCOI2SOutputFreq_Value,PLLCLKFreq_Value,RTCFreq_Value,FamilyName,HCLKFreq_Value,EthernetFreq_Value,APB2CLKDivider,PLLM,PLLN,VCOOutputFreq_Value,CortexFreq_Value,VcooutputI2S,APB1Freq_Value,RTCHSEDivFreq_Value,APB2TimFreq_Value
+RCC.IPParameters=PLLSource,LSI_VALUE,APB1TimFreq_Value,APB2Freq_Value,MCO2PinFreq_Value,APB1CLKDivider,FCLKCortexFreq_Value,AHBFreq_Value,48MHZClocksFreq_Value,VCOInputFreq_Value,I2SClocksFreq_Value,PLLSourceVirtual,SYSCLKFreq_VALUE,PLLQ,SYSCLKSource,LSE_VALUE,HSE_VALUE,HSI_VALUE,VCOI2SOutputFreq_Value,PLLCLKFreq_Value,RTCFreq_Value,FamilyName,HCLKFreq_Value,EthernetFreq_Value,APB2CLKDivider,PLLM,PLLN,VCOOutputFreq_Value,CortexFreq_Value,VcooutputI2S,APB1Freq_Value,RTCHSEDivFreq_Value,APB2TimFreq_Value
 RCC.LSE_VALUE=32768
 RCC.LSI_VALUE=32000
 RCC.MCO2PinFreq_Value=168000000

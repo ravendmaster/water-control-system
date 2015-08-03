@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 30/07/2015 19:25:13
+  * Date               : 03/08/2015 18:04:39
   * Description        : Main program body
   ******************************************************************************
   *
@@ -39,6 +39,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include "NRF24.h"
+#include "AES.h"
+#include "encrypted_block.h"
 #include "nrf24_address_cfg.h"
 /* USER CODE END Includes */
 
@@ -120,6 +122,21 @@ typedef struct
 	//DateTime radio_sensor_dateTime; //32 - 38
 } SettingsAndStatus;
 
+aes128_ctx_t AES_ctx;
+
+
+
+uint8_t readUart(uint8_t * buff, uint8_t max)
+{
+	uint8_t cur_pos=0;
+	while(cur_pos<max)
+	{
+		if( HAL_UART_Receive(&huart3, &buff[cur_pos++], 1, 100) != HAL_OK)break;
+	}
+	buff[--cur_pos]=0;
+	return cur_pos;
+}
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -146,29 +163,27 @@ int main(void)
 	nrf24_init(&hspi2);
 	
 	nrf24_config(99,32);
-	nrf24_powerUpRx();
-	
-	//uint8_t tx_address[5] = {0x28,0xD7,0xD7,0xD7,0xD7};
-	//uint8_t rx_address[5] = {0x29,0xE7,0xE7,0xE7,0xE7};	
-	
-	//uint8_t tx_address[5] = {0x28,0xE7,0xE7,0xE7,0xE7};
-	//uint8_t rx_address[5] = {0x29,0xD7,0xD7,0xD7,0xD7};	
-	
-  
 	
   //nrf24_tx_address(tx_address);
   nrf24_rx_address(RX_ADDR_P1, openhab_gate_address);	
 	uint8_t buff[32];
 	
+	nrf24_powerUpRx();
+	
+	aes128_init(AES_key, &AES_ctx);
+	uint8_t inputBuff[20];
+		
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));
+		//HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));
 		
-		if(nrf24_dataReady())
+		
+		
+		if(nrf24_dataReady()) // main controller -> OpenHAB
     {
       nrf24_getData(buff);
 			SettingsAndStatus * data=(SettingsAndStatus *)buff;
@@ -182,8 +197,77 @@ int main(void)
 			HAL_UART_Transmit(&huart3, (uint8_t*)text, strlen(text), 100);
 			HAL_Delay(200);
 
+			if(data->valveStatus==VALVE_STATUS_CLOSED)
+			{
+				HAL_UART_Transmit(&huart3, (uint8_t*)"V0", 2, 100);
+				HAL_Delay(200);
+			}
+			if(data->valveStatus==VALVE_STATUS_OPENED)
+			{
+				HAL_UART_Transmit(&huart3, (uint8_t*)"V1", 2, 100);
+				HAL_Delay(200);
+			}
+			
+			if(data->accident_status==ACCIDENT_MODE)
+			{
+				HAL_UART_Transmit(&huart3, (uint8_t*)"ACCIDENT1", 9, 100);
+				HAL_Delay(200);
+			}
+			if(data->accident_status==REGULAR_MODE)
+			{
+				HAL_UART_Transmit(&huart3, (uint8_t*)"ACCIDENT0", 9, 100);
+				HAL_Delay(200);
+			}
+			
 			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 		}
+		
+		
+		if(readUart(inputBuff, 20)>0) //OpenHAB -> main controller
+		{
+			nrf24_tx_address(master_controller_address_pipe2);	
+			uint8_t tempBuff[32];
+			EncryptedBlock * eb=(EncryptedBlock *)tempBuff;
+
+			bool needDataToSend=false;
+			
+			if(strcmp((const char*)inputBuff, "*V0")==0)
+			{
+				eb->data[0]=0;
+				needDataToSend=true;
+			}
+			
+			if(strcmp((const char*)inputBuff, "*V1")==0)
+			{
+				eb->data[0]=1;
+				needDataToSend=true;
+			}
+
+			if(strcmp((const char*)inputBuff, "*ACCIDENT0")==0)
+			{
+				eb->data[0]=2;
+				needDataToSend=true;
+			}
+			
+			if(strcmp((const char*)inputBuff, "*ACCIDENT1")==0)
+			{
+				eb->data[0]=3;
+				needDataToSend=true;
+			}
+			
+		
+			if(needDataToSend)
+			{
+				aes128_enc(tempBuff, &AES_ctx);
+				//aes128_enc(tempBuff+16, &AES_ctx);
+				
+				nrf24_sendDL(tempBuff, 16);
+				while(nrf24_isSending()){};
+				
+				
+				nrf24_powerUpRx();
+			}
+		}		
 					
   /* USER CODE END WHILE */
 
