@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 31/07/2015 16:09:39
+  * Date               : 03/08/2015 17:27:18
   * Description        : Main program body
   ******************************************************************************
   *
@@ -106,6 +106,7 @@ bool userAlreadyNotified=false;
 
 uint32_t sensor_resistance_value=0;
 
+bool needRefreshStateOnOpenHub=false;
 
 uint8_t HexToDec(uint8_t hex)
 {
@@ -230,8 +231,13 @@ DateTime * getCurrentDateTime()
 
 void saveAccidentStatus(AccidentStatus mode)
 {
+	if(getSettingsStruct()->accident_status==mode)return;
+	
 	getSettingsStruct()->accident_status=mode;
 	settings_page1_data_buff_need_save=true;
+	
+	needRefreshStateOnOpenHub=true;
+	
 }
 
 AccidentStatus loadAccidentStatus()
@@ -512,6 +518,8 @@ void saveValveStatus(ValveStatus status)
 	memcpy(ptr, getCurrentDateTime(), sizeof(DateTime));
 	getSettingsStruct()->valveStatus=status;
 	settings_page1_data_buff_need_save=true;
+	
+	needRefreshStateOnOpenHub=true;
 }
 
 void resetValveCounter(void * param){
@@ -554,6 +562,7 @@ void ValveOff(void * param)
 //сброс признака протечки
 void resetWaterAlert(void * param)
 {
+	radio_sensor_resistance_value=0xffff;
 	userAlreadyNotified=false;
 	saveAccidentStatus(REGULAR_MODE);
 	ValveOn(0);
@@ -842,7 +851,7 @@ int main(void)
   I2CTimeTaskHandle = osThreadCreate(osThread(I2CTimeTask), NULL);
 
   /* definition and creation of NRFf24Task */
-  osThreadDef(NRFf24Task, StartNrf24Task, osPriorityNormal, 0, 128);
+  osThreadDef(NRFf24Task, StartNrf24Task, osPriorityNormal, 0, 256);
   NRFf24TaskHandle = osThreadCreate(osThread(NRFf24Task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -1114,6 +1123,21 @@ void MainLED(GPIO_PinState r, GPIO_PinState g, GPIO_PinState b){
 #define MainLED_GREEN MainLED(GPIO_PIN_RESET,GPIO_PIN_SET,GPIO_PIN_RESET)
 #define MainLED_BLUE MainLED(GPIO_PIN_RESET,GPIO_PIN_RESET,GPIO_PIN_SET)
 
+void sendStateToOpenHabGate(){
+	nrf24_tx_address(openhab_gate_address);
+	SettingsAndStatus * data=getSettingsStruct();	
+	nrf24_send(data);
+	while(nrf24_isSending()){};
+
+//	uint8_t a=nrf24_lastMessageStatus();
+//	a=a+1;
+//	uint8_t b=nrf24_retransmissionCount();
+//		b=b+1;
+		
+	nrf24_powerUpRx();
+}
+
+
 /* USER CODE END 4 */
 
 /* StartLCDTask function */
@@ -1380,17 +1404,23 @@ void StartNrf24Task(void const * argument)
 	nrf24_config(99,32);
 	//nrf24_rx_address(RX_ADDR_P0, master_controller_address_pipe0); //not use! for ack only
 	nrf24_rx_address(RX_ADDR_P1, master_controller_address_pipe1);
+	nrf24_rx_address(RX_ADDR_P2, master_controller_address_pipe2);
 	//nrf24_tx_address(zond_address);
 
 	osSemaphoreRelease(SPI1BinarySemHandle);
 
 	aes128_init(AES_key, &AES_ctx);
 	
+	
+	
 	nrf24_powerUpRx();
 	
   /* Infinite loop */
   for(;;)
   {
+
+		
+			
 		osDelay(10);
 		
 		osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
@@ -1400,8 +1430,31 @@ void StartNrf24Task(void const * argument)
 			uint8_t pipeNo=nrf24_dataReadyPipeNo();
 			switch(pipeNo)
 			{
-				case 2:
-//					nrf24_getData((uint8_t*)&encryptedBlock);
+				case 2: //OpenHUB gate
+					nrf24_getData((uint8_t*)&encryptedBlock);
+					aes128_dec((uint8_t*)&encryptedBlock, &AES_ctx);
+					aes128_dec((uint8_t*)&encryptedBlock+16, &AES_ctx);
+					switch(encryptedBlock.data[0])
+					{
+						case 0:
+							ValveOff(0);
+							break;
+						case 1:
+							ValveOn(0);
+							needRefreshStateOnOpenHub=true;
+							break;
+						case 2:
+							resetWaterAlert(0);
+							break;
+						case 3:
+							setWaterAccidentMode();
+							break;
+						
+					}
+					
+					//
+					break;
+				
 //					nrf24_tx_address(openhab_gate_address);
 //					SettingsAndStatus * data=getSettingsStruct();	
 //					nrf24_send(data);
@@ -1427,14 +1480,7 @@ void StartNrf24Task(void const * argument)
 					getSettingsStruct()->radio_sensor_dateTime=*getCurrentDateTime();
 					settings_page2_data_buff_need_save=true;
 					
-					
-					
-					nrf24_tx_address(openhab_gate_address);
-					SettingsAndStatus * data=getSettingsStruct();	
-					nrf24_send(data);
-					while(nrf24_isSending()){};
-					nrf24_powerUpRx();
-					
+					needRefreshStateOnOpenHub=true;
 					break;
 					
 					//srand(encryptedBlock.token);
@@ -1456,6 +1502,11 @@ void StartNrf24Task(void const * argument)
 				}
 		}		
 		
+		if(needRefreshStateOnOpenHub)
+		{
+			sendStateToOpenHabGate();
+			needRefreshStateOnOpenHub=false;
+		}		
 		osSemaphoreRelease(SPI1BinarySemHandle);
 		
 		
