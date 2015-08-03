@@ -115,7 +115,7 @@ void nrf24_config(uint8_t channel, uint8_t pay_length)
     nrf24_configRegister(RX_PW_P5, 32); // Pipe not used 
 
     // 1 Mbps, TX gain: 0dbm
-		nrf24_configRegister(RF_SETUP, (0<<RF_DR)|((0x00)<<RF_PWR));
+		nrf24_configRegister(RF_SETUP, (0<<RF_DR)|((0x03)<<RF_PWR));
 		//256
 		//nrf24_configRegister(RF_SETUP, (1<<RF_DR_LOW)|((0x03)<<RF_PWR));
 
