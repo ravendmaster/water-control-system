@@ -37,6 +37,12 @@
 
 /* Bit Mnemonics */
 
+/* FEATURE R/W Feature Register */
+#define EN_DPL      2 // R/W Enables Dynamic Payload Length
+#define EN_ACK_PAYd 1 // R/W Enables Payload with ACK
+#define EN_DYN_ACK  0 // R/W Enables the W_TX_PAYLOAD_NOACK command
+
+
 /* configuratio nregister */
 #define MASK_RX_DR  6
 #define MASK_TX_DS  5
@@ -122,6 +128,8 @@
 
 extern uint8_t nrf24_payload_len;
 
+uint8_t nrf24_dataReadyPipeNo(void);
+uint8_t nrf24_getStatus(void);
 void nrf24_writeRegister(uint8_t reg, uint8_t* value, uint8_t len);
 void nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len);
 void nrf24_writeAckPayload(uint8_t pipe, const void* buf, uint8_t len);
@@ -132,6 +140,7 @@ void nrf24_rx_address(uint8_t * adr);
 uint8_t nrf24_lastMessageStatus(void);
 uint8_t nrf24_retransmissionCount(void);
 uint8_t nrf24_isSending(void);
+void nrf24_sendDL(void * value, uint8_t payload_len);
 void nrf24_send(void * value);
 void nrf24_powerDown(void);
 uint8_t nrf24_dataReady(void);

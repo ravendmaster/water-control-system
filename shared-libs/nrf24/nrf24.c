@@ -132,7 +132,11 @@ void nrf24_config(uint8_t channel, uint8_t pay_length)
     nrf24_configRegister(SETUP_RETR,(0x04<<ARD)|(0x0F<<ARC));
 
     // Dynamic length configurations: No dynamic length
-    nrf24_configRegister(DYNPD,(0<<DPL_P0)|(0<<DPL_P1)|(0<<DPL_P2)|(0<<DPL_P3)|(0<<DPL_P4)|(0<<DPL_P5));
+    //nrf24_configRegister(DYNPD,(0<<DPL_P0)|(0<<DPL_P1)|(0<<DPL_P2)|(0<<DPL_P3)|(0<<DPL_P4)|(0<<DPL_P5));
+
+		// Use dymamic length
+    nrf24_configRegister(DYNPD,(1<<DPL_P0)|(0<<DPL_P1)|(0<<DPL_P2)|(0<<DPL_P3)|(0<<DPL_P4)|(0<<DPL_P5));
+		nrf24_configRegister(FEATURE,(1<<EN_DPL));		
 
     // Start listening
     //nrf24_powerUpRx();
@@ -152,9 +156,7 @@ void nrf24_powerDown()
 
 }
 
-// Sends a data package to the default address. Be sure to send the correct
-// amount of bytes as configured as payload on the receiver.
-void nrf24_send(void * value) 
+void nrf24_sendDL(void * value, uint8_t payload_len) 
 {    
     /* Go to Standby-I first */
     CE_LOW;
@@ -181,13 +183,21 @@ void nrf24_send(void * value)
     spi_transfer(W_TX_PAYLOAD);
 
     /* Write payload */
-    nrf24_transmitSync(value,nrf24_payload_len);   
+    nrf24_transmitSync(value, payload_len);   
 
     /* Pull up chip select */
     CSN_HIGH;
 
     /* Start the transmission */
     CE_HIGH;
+}
+
+
+// Sends a data package to the default address. Be sure to send the correct
+// amount of bytes as configured as payload on the receiver.
+void nrf24_send(void * value) 
+{    
+   nrf24_sendDL(value, nrf24_payload_len);
 }
 
 uint8_t nrf24_getStatus()
@@ -296,6 +306,12 @@ uint8_t nrf24_dataReady()
 
     return !nrf24_rxFifoEmpty();
 }
+
+uint8_t nrf24_dataReadyPipeNo()
+{
+		return (nrf24_getStatus()>>1)&0x7;
+}
+
 
 /* Reads payload bytes into data array */
 void nrf24_getData(void * data) 

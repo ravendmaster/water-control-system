@@ -109,7 +109,7 @@ void xprintf(void * ptr, ...)
 {
 }
 
-uint8_t onAir(uint16_t accidient){
+void onAir(uint16_t accidient){
 	
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);//green
 	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3);//blue
@@ -138,73 +138,77 @@ uint8_t onAir(uint16_t accidient){
 
 	// רטפנףול
 	aes128_enc(&probeBlock, &AES_ctx);
-	aes128_enc(&probeBlock+16, &AES_ctx);
+	//aes128_enc(&probeBlock+16, &AES_ctx);
 
 	nrf24_config(99,32);	
 	nrf24_tx_address(master_controller_address);
 	nrf24_rx_address(zond_address);
 		
+		
+    // Dynamic length configurations: No dynamic length
+
+		
 	/* Automatically goes to TX mode */
-	nrf24_send((uint8_t*)&probeBlock);        
+	nrf24_sendDL((uint8_t*)&probeBlock, 16);
 
 	
 	/* Wait for transmission to end */
 	while(nrf24_isSending()){};
 		
 	/* Make analysis on last tranmission attempt */
-	uint8_t temp = nrf24_lastMessageStatus();
+//	uint8_t temp = nrf24_lastMessageStatus();
 
-	if(temp == NRF24_TRANSMISSON_OK)
-	{                    
-			xprintf("> Tranmission went OK\r\n");
-	}
-	else if(temp == NRF24_MESSAGE_LOST)
-	{   
-//			for(int i=1;i<10;i++)
-//			{		
-//				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);		
-//				HAL_Delay(20);
-//				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);		
-//				HAL_Delay(20);
-//			}
-			xprintf("> Message is lost ...\r\n");    
-		//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	}
-	
-	/* Retranmission count indicates the tranmission quality */
-	temp = nrf24_retransmissionCount();
-	xprintf("> Retranmission count: %d\r\n",temp);
+//	if(temp == NRF24_TRANSMISSON_OK)
+//	{                    
+//			xprintf("> Tranmission went OK\r\n");
+//	}
+//	else if(temp == NRF24_MESSAGE_LOST)
+//	{   
+////			for(int i=1;i<10;i++)
+////			{		
+////				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);		
+////				HAL_Delay(20);
+////				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);		
+////				HAL_Delay(20);
+////			}
+//			xprintf("> Message is lost ...\r\n");    
+//		//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+//	}
+//	
+//	/* Retranmission count indicates the tranmission quality */
+//	temp = nrf24_retransmissionCount();
+//	xprintf("> Retranmission count: %d\r\n",temp);
 
 	
 	
-	uint8_t cfg_recived=0;
-	while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)==GPIO_PIN_RESET)
-	{
-		nrf24_powerUpRx();
-		
-		if((HAL_GetTick()&64)||(cfg_recived)){
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-		}
-		else{
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		}
-	
-		if(nrf24_dataReady())
-		{
-			cfg_recived=1;
-			EncryptedBlock mainBlock;
-			nrf24_getData(&mainBlock);
-			aes128_dec(&mainBlock, &AES_ctx);
-			aes128_dec(&mainBlock+16, &AES_ctx);
-			
-			ControllerData * controllerData=(ControllerData *)mainBlock.data;
-			BKP->DR3=controllerData->air_interval;
-		}
-	}
+//	uint8_t cfg_recived=0;
+//	while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)==GPIO_PIN_RESET)
+//	{
+//		nrf24_powerUpRx();
+//		
+//		if((HAL_GetTick()&64)||(cfg_recived)){
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+//		}
+//		else{
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+//		}
+//	
+//		if(nrf24_dataReady())
+//		{
+//			cfg_recived=1;
+//			EncryptedBlock mainBlock;
+//			nrf24_getData(&mainBlock);
+//			aes128_dec(&mainBlock, &AES_ctx);
+//			aes128_dec(&mainBlock+16, &AES_ctx);
+//			
+//			ControllerData * controllerData=(ControllerData *)mainBlock.data;
+//			BKP->DR3=controllerData->air_interval;
+//		}
+//	}
 		
 	nrf24_powerDown();
 
-	return temp;
+	//return temp;
 	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);	
 	
 }
@@ -294,7 +298,7 @@ int main(void)
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET); //green
 	}
 	
-	if((accidient)||(BKP->DR3==0)){
+	if((accidient)||(BKP->DR3==0)||(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)==GPIO_PIN_RESET)){
 		MX_SPI2_Init();
 		onAir(accidient);
 		BKP->DR3=60;
