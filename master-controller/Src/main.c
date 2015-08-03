@@ -1260,7 +1260,7 @@ void StartUserManagementTask(void const * argument)
 			switch(HAL_GetTick()&512)
 			{
 				case 0:
-					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);		
+					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 					break;
 				default:
 					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);		
@@ -1378,30 +1378,15 @@ void StartNrf24Task(void const * argument)
   /* USER CODE BEGIN StartNrf24Task */
 	osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
 	nrf24_config(99,32);
-	nrf24_powerUpRx();
-	
-	
-  
-	
-	nrf24_rx_address(master_controller_address);	
-	nrf24_tx_address(zond_address);
+	//nrf24_rx_address(RX_ADDR_P0, master_controller_address_pipe0); //not use! for ack only
+	nrf24_rx_address(RX_ADDR_P1, master_controller_address_pipe1);
+	//nrf24_tx_address(zond_address);
 
 	osSemaphoreRelease(SPI1BinarySemHandle);
 
-	//uint8_t AES_key[16]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 	aes128_init(AES_key, &AES_ctx);
 	
-	//uint32_t actualToken;
-	//uint32_t preparedToken;
-	
-//	for(int i=0;i<sizeof(actualToken);i++)
-//	{
-//		actualToken<<=8;
-//		actualToken|=getRND8();
-//	}
-
-	//uint32_t lastOnAirCenter=0;
-
+	nrf24_powerUpRx();
 	
   /* Infinite loop */
   for(;;)
@@ -1411,30 +1396,49 @@ void StartNrf24Task(void const * argument)
 		osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
 		if(nrf24_dataReady())
     {	
-				EncryptedBlock probeBlock;
-				nrf24_getData((uint8_t*)&probeBlock);
-				osSemaphoreRelease(SPI1BinarySemHandle);
-			
-				aes128_dec((uint8_t*)&probeBlock, &AES_ctx);
-				aes128_dec((uint8_t*)&probeBlock+16, &AES_ctx);
-
-				ProbeData * probeData=(ProbeData *)probeBlock.data;
-				if(probeData->crc!=0xf0f0f0f0){
-					continue;
-				}
-			
-				if(probeBlock.token<=getKey()){
-					continue;
-				}
-				setKey(probeBlock.token);
+			EncryptedBlock encryptedBlock;
+			uint8_t pipeNo=nrf24_dataReadyPipeNo();
+			switch(pipeNo)
+			{
+				case 2:
+//					nrf24_getData((uint8_t*)&encryptedBlock);
+//					nrf24_tx_address(openhab_gate_address);
+//					SettingsAndStatus * data=getSettingsStruct();	
+//					nrf24_send(data);
+//					while(nrf24_isSending()){};
+//					nrf24_powerUpRx();
+//					break;
 				
-				srand(probeBlock.token);
+				case 1:
+					nrf24_getData((uint8_t*)&encryptedBlock);
+					aes128_dec((uint8_t*)&encryptedBlock, &AES_ctx);
 
+					ProbeData * probeData=(ProbeData *)encryptedBlock.data;
+					if(probeData->crc!=0xf0f0f0f0){
+						continue;
+					}
 				
-				radio_sensor_resistance_value=probeData->sensor_val;
-				getSettingsStruct()->radio_sensor_dateTime=*getCurrentDateTime();
-				settings_page2_data_buff_need_save=true;
-
+					if(encryptedBlock.token<=getKey()){
+						continue;
+					}
+					setKey(encryptedBlock.token);
+					
+					radio_sensor_resistance_value=probeData->sensor_val;
+					getSettingsStruct()->radio_sensor_dateTime=*getCurrentDateTime();
+					settings_page2_data_buff_need_save=true;
+					
+					
+					
+					nrf24_tx_address(openhab_gate_address);
+					SettingsAndStatus * data=getSettingsStruct();	
+					nrf24_send(data);
+					while(nrf24_isSending()){};
+					nrf24_powerUpRx();
+					
+					break;
+					
+					//srand(encryptedBlock.token);
+					
 				//данные в зонд
 //				EncryptedBlock mainBlock;
 //				ControllerData * controllerData=(ControllerData *)mainBlock.data;
@@ -1449,8 +1453,11 @@ void StartNrf24Task(void const * argument)
 //				osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
 //				nrf24_send(&mainBlock);
 //				while(nrf24_isSending()){};
-				
-		}else{osSemaphoreRelease(SPI1BinarySemHandle);}
+				}
+		}		
+		
+		osSemaphoreRelease(SPI1BinarySemHandle);
+		
 		
 //		if(HAL_GetTick()-lastOnAirCenter>1000)
 //		{

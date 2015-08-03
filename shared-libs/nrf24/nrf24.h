@@ -136,7 +136,7 @@ void nrf24_writeAckPayload(uint8_t pipe, const void* buf, uint8_t len);
 void nrf24_init(SPI_HandleTypeDef * hspi);
 void nrf24_config(uint8_t channel, uint8_t pay_length);
 void nrf24_tx_address(uint8_t* adr);
-void nrf24_rx_address(uint8_t * adr);
+void nrf24_rx_address(uint8_t pipe, uint8_t * adr);
 uint8_t nrf24_lastMessageStatus(void);
 uint8_t nrf24_retransmissionCount(void);
 uint8_t nrf24_isSending(void);
