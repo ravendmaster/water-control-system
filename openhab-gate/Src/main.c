@@ -179,12 +179,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		//HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13));
-		
-		
-		
 		if(nrf24_dataReady()) // main controller -> OpenHAB
     {
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15); //blue
+			
       nrf24_getData(buff);
 			SettingsAndStatus * data=(SettingsAndStatus *)buff;
 			
@@ -218,13 +216,15 @@ int main(void)
 				HAL_UART_Transmit(&huart3, (uint8_t*)"ACCIDENT0", 9, 100);
 				HAL_Delay(200);
 			}
+						
 			
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 		}
 		
 		
 		if(readUart(inputBuff, 20)>0) //OpenHAB -> main controller
 		{
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14); //red
+			
 			nrf24_tx_address(master_controller_address_pipe2);	
 			uint8_t tempBuff[32];
 			EncryptedBlock * eb=(EncryptedBlock *)tempBuff;
