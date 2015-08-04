@@ -108,6 +108,9 @@ uint32_t sensor_resistance_value=0;
 
 bool needRefreshStateOnOpenHub=false;
 
+uint32_t beep_stop_timer;
+bool beep_on=false;
+
 uint8_t HexToDec(uint8_t hex)
 {
 	return (hex&0xf) + (hex>>4&0xf)*10;
@@ -1278,22 +1281,33 @@ void StartUserManagementTask(void const * argument)
 			saveCHW(count_hw.counter);
 		}
 
-		//buzzer
-		if((loadAccidentStatus()==ACCIDENT_MODE)&&(!userAlreadyNotified)) //闲我抛世
+		if(beep_on)
 		{
-			switch(HAL_GetTick()&512)
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+			if(HAL_GetTick()-beep_stop_timer>500)
 			{
-				case 0:
-					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-					break;
-				default:
-					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);		
-					break;
+				beep_on=false;
 			}
 		}
 		else
 		{
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);		
+			//buzzer
+			if((loadAccidentStatus()==ACCIDENT_MODE)&&(!userAlreadyNotified)) //闲我抛世
+			{
+				switch(HAL_GetTick()&512)
+				{
+					case 0:
+						HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+						break;
+					default:
+						HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);		
+						break;
+				}
+			}
+			else
+			{
+				HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);		
+			}
 		}
 		
 			
@@ -1449,6 +1463,11 @@ void StartNrf24Task(void const * argument)
 						case 3:
 							setWaterAccidentMode();
 							break;
+						case 4: //beep
+							beep_stop_timer=HAL_GetTick();
+							beep_on=true;
+							break;
+						
 						
 					}
 					
