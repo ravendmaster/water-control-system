@@ -258,6 +258,8 @@ int main(void)
 		
 			if(needDataToSend)
 			{
+				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+				
 				aes128_enc(tempBuff, &AES_ctx);
 				//aes128_enc(tempBuff+16, &AES_ctx);
 				
