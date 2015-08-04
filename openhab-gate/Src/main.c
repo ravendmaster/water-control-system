@@ -219,17 +219,26 @@ int main(void)
 						
 			
 		}
+
+		uint8_t tempBuff[32];
+		EncryptedBlock * eb=(EncryptedBlock *)tempBuff;
+		bool needDataToSend=false;
 		
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)==GPIO_PIN_SET)
+		{
+			eb->data[0]=4;
+			needDataToSend=true;
+			while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)==GPIO_PIN_SET){};
+		}
+			
 		
 		if(readUart(inputBuff, 20)>0) //OpenHAB -> main controller
 		{
 			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14); //red
 			
 			nrf24_tx_address(master_controller_address_pipe2);	
-			uint8_t tempBuff[32];
-			EncryptedBlock * eb=(EncryptedBlock *)tempBuff;
 
-			bool needDataToSend=false;
+			
 			
 			if(strcmp((const char*)inputBuff, "*V0")==0)
 			{
@@ -255,21 +264,26 @@ int main(void)
 				needDataToSend=true;
 			}
 			
-		
-			if(needDataToSend)
+			if(strcmp((const char*)inputBuff, "*BEEP")==0)
 			{
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-				
-				aes128_enc(tempBuff, &AES_ctx);
-				//aes128_enc(tempBuff+16, &AES_ctx);
-				
-				nrf24_sendDL(tempBuff, 16);
-				while(nrf24_isSending()){};
-				
-				
-				nrf24_powerUpRx();
+				eb->data[0]=4;
+				needDataToSend=true;
 			}
+			
 		}		
+		
+		if(needDataToSend)
+		{
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13); //orange
+			
+			aes128_enc(tempBuff, &AES_ctx);
+			//aes128_enc(tempBuff+16, &AES_ctx);
+			
+			nrf24_sendDL(tempBuff, 16);
+			while(nrf24_isSending()){};
+			
+			nrf24_powerUpRx();
+		}
 					
   /* USER CODE END WHILE */
 
