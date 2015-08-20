@@ -9,12 +9,11 @@
 
   <project>
     <PathAndName>.\master-controller\MDK-ARM\water-control.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\openhab-gate\MDK-ARM\openhab-gate.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
