@@ -1444,7 +1444,7 @@ void StartNrf24Task(void const * argument)
 			uint8_t pipeNo=nrf24_dataReadyPipeNo();
 			switch(pipeNo)
 			{
-				case 2: //OpenHUB gate
+				case 2: //OpenHUB gate pipe
 					nrf24_getData((uint8_t*)&encryptedBlock);
 					aes128_dec((uint8_t*)&encryptedBlock, &AES_ctx);
 					aes128_dec((uint8_t*)&encryptedBlock+16, &AES_ctx);
@@ -1455,7 +1455,6 @@ void StartNrf24Task(void const * argument)
 							break;
 						case 1:
 							ValveOn(0);
-							needRefreshStateOnOpenHub=true;
 							break;
 						case 2:
 							resetWaterAlert(0);
@@ -1467,21 +1466,13 @@ void StartNrf24Task(void const * argument)
 							beep_stop_timer=HAL_GetTick();
 							beep_on=true;
 							break;
-						
-						
+						case 5: //request state
+							needRefreshStateOnOpenHub=true;
+							break;
 					}
-					
-					//
 					break;
 				
-//					nrf24_tx_address(openhab_gate_address);
-//					SettingsAndStatus * data=getSettingsStruct();	
-//					nrf24_send(data);
-//					while(nrf24_isSending()){};
-//					nrf24_powerUpRx();
-//					break;
-				
-				case 1:
+				case 1: //probe pipe
 					nrf24_getData((uint8_t*)&encryptedBlock);
 					aes128_dec((uint8_t*)&encryptedBlock, &AES_ctx);
 
@@ -1501,23 +1492,6 @@ void StartNrf24Task(void const * argument)
 					
 					needRefreshStateOnOpenHub=true;
 					break;
-					
-					//srand(encryptedBlock.token);
-					
-				//данные в зонд
-//				EncryptedBlock mainBlock;
-//				ControllerData * controllerData=(ControllerData *)mainBlock.data;
-//				controllerData->air_interval=getSettingsStruct()->radio_onair_interval;
-//				for(int i=sizeof(ControllerData);i<sizeof(EncryptedBlock);i++)
-//				{
-//					probeBlock.data[i]=rand()%255;
-//				}					
-//				aes128_enc(&mainBlock, &AES_ctx);
-//				aes128_enc(&mainBlock+16, &AES_ctx);
-//				
-//				osSemaphoreWait(SPI1BinarySemHandle, osWaitForever);
-//				nrf24_send(&mainBlock);
-//				while(nrf24_isSending()){};
 				}
 		}		
 		
@@ -1527,25 +1501,6 @@ void StartNrf24Task(void const * argument)
 			needRefreshStateOnOpenHub=false;
 		}		
 		osSemaphoreRelease(SPI1BinarySemHandle);
-		
-		
-//		if(HAL_GetTick()-lastOnAirCenter>1000)
-//		{
-//			lastOnAirCenter=HAL_GetTick();
-//			
-//			//данные в центр
-//			
-//			
-//			nrf24_rx_address(master_controller_address);	
-//			nrf24_tx_address(openhab_gate_address);
-//			SettingsAndStatus * data=getSettingsStruct();	
-//			nrf24_send(data);
-//			while(nrf24_isSending()){};
-//		}
-//		
-//		nrf24_rx_address(master_controller_address);	
-//		nrf24_tx_address(zond_address);
-//		nrf24_powerUpRx();
 	}
 	
     
