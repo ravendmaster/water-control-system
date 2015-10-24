@@ -9,6 +9,10 @@
 
   <project>
     <PathAndName>.\master-controller\MDK-ARM\water-control.uvprojx</PathAndName>
+<<<<<<< HEAD
+=======
+    <NodeIsActive>1</NodeIsActive>
+>>>>>>> origin/master
   </project>
 
   <project>
