@@ -9,8 +9,6 @@
 
   <project>
     <PathAndName>.\master-controller\MDK-ARM\water-control.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -19,6 +17,7 @@
 
   <project>
     <PathAndName>.\radio-probe\MDK-ARM\radio-probe.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
 </ProjectWorkspace>
