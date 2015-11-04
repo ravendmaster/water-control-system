@@ -147,3 +147,7 @@ uint8_t nrf24_dataReady(void);
 void nrf24_getData(void * data);
 void nrf24_powerUpRx(void);
 void nrf24_configRegister(uint8_t reg, uint8_t value);
+
+void QMTT_SendOutTopic(const char * out_topic, uint8_t * adr);
+void QMTT_SendInTopic(const char * in_topic, uint8_t * adr);
+void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr);

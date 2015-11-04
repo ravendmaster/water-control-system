@@ -27,3 +27,5 @@ water-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1
 water-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_i2c.h
 water-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h
 water-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h
+water-control configuration\nrf24.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+water-control configuration\nrf24.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

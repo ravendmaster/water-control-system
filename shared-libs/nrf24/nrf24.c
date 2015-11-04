@@ -1,5 +1,7 @@
 #include "nrf24.h"
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 static SPI_HandleTypeDef * nrf24_hspi;
 uint8_t nrf24_payload_len;
@@ -331,4 +333,69 @@ void nrf24_getData(void * data)
 
     /* Reset status register */
     nrf24_configRegister(STATUS,(1<<RX_DR));   
+}
+
+
+typedef struct
+{
+	uint32_t version;
+	uint8_t data[28];
+} QMTTMessage;
+
+/*
+QMTTMessage * getSettingsStruct()
+{
+		return (QMTTMessage*)buff;
+}
+*/
+
+void sendNRF(QMTTMessage * message)
+{
+	nrf24_send(message);
+	while(nrf24_isSending()){};
+		
+/*
+	uint8_t a=nrf24_lastMessageStatus();
+	a=a+1;
+	uint8_t b=nrf24_retransmissionCount();
+		b=b+1;
+*/
+		
+	nrf24_powerUpRx();	
+}
+
+void QMTT_SendOutTopic(const char * out_topic, uint8_t * adr)
+{
+	QMTTMessage message;	
+	message.version=0;
+	memcpy((char*)message.data, adr, 5);
+	strcpy((char*)message.data+5, out_topic);
+	sendNRF(&message);
+}
+
+void QMTT_SendInTopic(const char * in_topic, uint8_t * adr)
+{
+	QMTTMessage message;	
+	message.version=1;
+	memcpy((char*)message.data, adr, 5);
+	strcpy((char*)message.data+5, in_topic);
+	sendNRF(&message);
+}
+
+
+void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr)
+{
+	QMTTMessage message;	
+	
+	message.version=10;
+	
+	memcpy((char*)message.data, adr, 5);
+	
+	int len=strlen((char*)name)+1;
+	memcpy((char*)message.data+5, name, len);
+	
+	int len2=strlen((char*)value);
+	memcpy((char*)message.data+5+len, value, len2+1);
+	
+	sendNRF(&message);
 }

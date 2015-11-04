@@ -1127,7 +1127,7 @@ void MainLED(GPIO_PinState r, GPIO_PinState g, GPIO_PinState b){
 #define MainLED_BLUE MainLED(GPIO_PIN_RESET,GPIO_PIN_RESET,GPIO_PIN_SET)
 
 void sendStateToOpenHabGate(){
-	nrf24_tx_address(openhab_gate_address);
+	nrf24_tx_address(openhab_gate_address_pipe0);
 	SettingsAndStatus * data=getSettingsStruct();	
 	nrf24_send(data);
 	while(nrf24_isSending()){};
@@ -1419,7 +1419,7 @@ void StartNrf24Task(void const * argument)
 	//nrf24_rx_address(RX_ADDR_P0, master_controller_address_pipe0); //not use! for ack only
 	nrf24_rx_address(RX_ADDR_P1, master_controller_address_pipe1);
 	nrf24_rx_address(RX_ADDR_P2, master_controller_address_pipe2);
-	//nrf24_tx_address(zond_address);
+	
 
 	osSemaphoreRelease(SPI1BinarySemHandle);
 
@@ -1444,7 +1444,7 @@ void StartNrf24Task(void const * argument)
 			uint8_t pipeNo=nrf24_dataReadyPipeNo();
 			switch(pipeNo)
 			{
-				case 2: //OpenHUB gate pipe
+				case 2: //OpenHAB gate pipe
 					nrf24_getData((uint8_t*)&encryptedBlock);
 					aes128_dec((uint8_t*)&encryptedBlock, &AES_ctx);
 					aes128_dec((uint8_t*)&encryptedBlock+16, &AES_ctx);
