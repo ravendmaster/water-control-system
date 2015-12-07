@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "aes.h"
 
 static SPI_HandleTypeDef * nrf24_hspi;
 uint8_t nrf24_payload_len;
@@ -364,26 +365,34 @@ void sendNRF(QMTTMessage * message)
 	nrf24_powerUpRx();	
 }
 
-void QMTT_SendOutTopic(const char * out_topic, uint8_t * adr)
+void QMTT_SendOutTopic(const char * out_topic, uint8_t * adr, aes128_ctx_t* ctx)
 {
 	QMTTMessage message;	
 	message.version=0;
 	memcpy((char*)message.data, adr, 5);
 	strcpy((char*)message.data+5, out_topic);
+	
+	aes128_enc((void*)(&message), ctx);
+	aes128_enc((void*)(&message+16), ctx);
+	
 	sendNRF(&message);
 }
 
-void QMTT_SendInTopic(const char * in_topic, uint8_t * adr)
+void QMTT_SendInTopic(const char * in_topic, uint8_t * adr, aes128_ctx_t* ctx)
 {
 	QMTTMessage message;	
 	message.version=1;
 	memcpy((char*)message.data, adr, 5);
 	strcpy((char*)message.data+5, in_topic);
+
+	aes128_enc((void*)(&message), ctx);
+	aes128_enc((void*)(&message+16), ctx);
+
 	sendNRF(&message);
 }
 
 
-void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr)
+void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr, aes128_ctx_t* ctx)
 {
 	QMTTMessage message;	
 	
@@ -397,5 +406,8 @@ void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr)
 	int len2=strlen((char*)value);
 	memcpy((char*)message.data+5+len, value, len2+1);
 	
+	aes128_enc((void*)(&message), ctx);
+	aes128_enc((void*)(&message+16), ctx);
+
 	sendNRF(&message);
 }

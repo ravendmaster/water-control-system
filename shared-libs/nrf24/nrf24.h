@@ -1,4 +1,5 @@
 #include "nrf24_properties.h"
+#include "aes.h"
 
 //EXAMPLE of nrf24_properties.h
 //#define CSN_HIGH HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET)
@@ -148,6 +149,6 @@ void nrf24_getData(void * data);
 void nrf24_powerUpRx(void);
 void nrf24_configRegister(uint8_t reg, uint8_t value);
 
-void QMTT_SendOutTopic(const char * out_topic, uint8_t * adr);
-void QMTT_SendInTopic(const char * in_topic, uint8_t * adr);
-void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr);
+void QMTT_SendOutTopic(const char * out_topic, uint8_t * adr, aes128_ctx_t* ctx);
+void QMTT_SendInTopic(const char * in_topic, uint8_t * adr, aes128_ctx_t* ctx);
+void QMTT_SendTextMessage(const char * name, const char * value, uint8_t * adr, aes128_ctx_t* ctx);

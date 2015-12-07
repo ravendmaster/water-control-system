@@ -128,15 +128,102 @@ QMTT_Message QMTT_Get(EncryptedBlock * encryptedBlock)
 {
 	int topic_len=strlen((char*)encryptedBlock->data);
 	char * value=(char*)encryptedBlock->data+topic_len+1;
-		
-	//if(strcmp(value, "ON")==0)
+
 	QMTT_Message message;
 	message.topic=(char*)encryptedBlock->data;
 	message.value=value;
 	
 	return message;
 }
+
+static uint8_t UD1_address[5] =  {0x01,0xF7,0xF7,0xF7,0xF7};
+static uint32_t switches_states;
+static uint32_t switches_count=4;
+static char in_topic[]="/myhome/in";
+static char out_topic[]="/myhome/out";
+
+typedef struct
+{
+	GPIO_TypeDef* GPIOx;
+	uint16_t GPIO_Pin;
+} SwitchPinAdress;
+
+static SwitchPinAdress switchesMap[32]=
+{
+	{GPIOB,GPIO_PIN_1},
+	{GPIOA,GPIO_PIN_3},
+	{GPIOA,GPIO_PIN_4},
+	{GPIOA,GPIO_PIN_5}
+	
+};
+
+void actualizeHardwareStatus()
+{
+	for(int i=0;i<switches_count;i++)
+	{
+		GPIO_PinState pinstate;
+		if(1&(switches_states>>i)){
+			pinstate=GPIO_PIN_SET;
+		}else{
+			pinstate=GPIO_PIN_RESET;
+		};
 				
+		HAL_GPIO_WritePin(switchesMap[i].GPIOx, switchesMap[i].GPIO_Pin, pinstate);
+	}
+		
+}
+
+void sendSwitchStateToQMTTServer(uint32_t switch_no)
+{
+		char topic[32];
+		char message_on[]="ON";
+		char message_off[]="OFF";
+		char * message;
+		
+		sprintf(topic, "UD1_%d", switch_no);
+		if((switches_states>>switch_no)&1){
+			message=message_on;
+		}else{
+			message=message_off;
+		};
+		
+		QMTT_SendTextMessage(topic, message, UD1_address, &AES_ctx);
+}
+
+void sendFullStatesToQMTTServer()
+{
+	//HAL_GPIO_WritePin(switchesMap[0].GPIOx, switchesMap[0].GPIO_Pin, GPIO_PIN_SET);
+	
+	QMTT_SendOutTopic(out_topic, UD1_address, &AES_ctx);
+	QMTT_SendInTopic(in_topic, UD1_address, &AES_ctx);
+	
+	for(int i=0;i<switches_count;i++)
+	{
+		sendSwitchStateToQMTTServer(i);
+	}
+	
+	//HAL_GPIO_WritePin(switchesMap[0].GPIOx, switchesMap[0].GPIO_Pin, GPIO_PIN_RESET);
+}
+
+void interpretateQMTTMessage(char * topic, char * value)
+{
+	for(int i=0;i<switches_count;i++)
+	{
+		char temp[32];
+		sprintf(temp, "UD1_%d", i);
+		if(strcmp(topic, temp)==0)
+		{
+			if(strcmp(value, "ON")==0)
+			{
+				switches_states|=(1<<i);
+			}
+				else
+			{
+				switches_states&=~(1<<i);
+			}
+		}
+	}
+}
 
 /* USER CODE END 0 */
 
@@ -166,39 +253,43 @@ int main(void)
 	
 	nrf24_init(&hspi2);
 	nrf24_config(99,32);
-	
-	
-	uint8_t UD1_address[5] =  {0x01,0xF7,0xF7,0xF7,0xF7};
 
 	nrf24_rx_address(RX_ADDR_P1, UD1_address);
 	nrf24_tx_address(openhab_gate_address_pipe1);
 	
-	
-	QMTT_SendOutTopic("/myhome/out", UD1_address);
-	QMTT_SendInTopic("/myhome/in", UD1_address);
-	
+	uint32_t last_t=0xffff;
+	//sendFullStatesToQMTTServer();
 	
 	nrf24_powerUpRx();
-		
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		uint32_t t=HAL_GetTick();
+		if(t-last_t>60000)
+		{
+			last_t=t;
+			sendFullStatesToQMTTServer();
+			nrf24_powerUpRx();
+		}
+		
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET)
 		{
 			
 			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)==GPIO_PIN_SET)
 			{
-				QMTT_SendTextMessage("UD1_0", "OFF", UD1_address);
-				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+				QMTT_SendTextMessage("UD1_0", "OFF", UD1_address, &AES_ctx);
+				interpretateQMTTMessage("UD1_0", "OFF");
 			}
 			else
 			{
-				QMTT_SendTextMessage("UD1_0", "ON", UD1_address);
-				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+				QMTT_SendTextMessage("UD1_0", "ON", UD1_address, &AES_ctx);
+				interpretateQMTTMessage("UD1_0", "ON");
 			}
+			actualizeHardwareStatus();
 
 			while((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET)){};
 		}
@@ -213,35 +304,10 @@ int main(void)
 			aes128_dec((uint8_t*)&encryptedBlock+16, &AES_ctx);
 			
 			QMTT_Message qmtt_message=QMTT_Get(&encryptedBlock);
+
+			interpretateQMTTMessage(qmtt_message.topic, qmtt_message.value);
 			
-			GPIO_PinState pinstate;
-			if(strcmp(qmtt_message.value, "ON")==0)
-			{
-				pinstate=GPIO_PIN_SET;
-			}
-			else
-			{
-				pinstate=GPIO_PIN_RESET;
-			}
-				
-			
-			if(strcmp(qmtt_message.topic, "UD1_0")==0)
-			{
-					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, pinstate);
-			}
-			
-			if(strcmp(qmtt_message.topic, "UD1_R")==0)
-			{
-					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, pinstate);
-			}
-			if(strcmp(qmtt_message.topic, "UD1_G")==0)
-			{
-					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, pinstate);
-			}
-			if(strcmp(qmtt_message.topic, "UD1_B")==0)
-			{
-					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, pinstate);
-			}
+			actualizeHardwareStatus();
 		}
 			
 			
