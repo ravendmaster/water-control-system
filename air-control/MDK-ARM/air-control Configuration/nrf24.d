@@ -26,6 +26,8 @@ air-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx
 air-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rtc.h
 air-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rtc_ex.h
 air-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h
+air-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim.h
+air-control configuration\nrf24.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim_ex.h
 air-control configuration\nrf24.o: ..\..\shared-libs\aes\aes.h
 air-control configuration\nrf24.o: ..\..\shared-libs\aes\aes_types.h
 air-control configuration\nrf24.o: ..\..\shared-libs\aes\aes128_enc.h

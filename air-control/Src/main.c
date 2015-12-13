@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 31/10/2015 18:42:05
+  * Date               : 12/12/2015 22:20:39
   * Description        : Main program body
   ******************************************************************************
   *
@@ -49,6 +49,8 @@ RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim3;
+
 /* USER CODE BEGIN PV */
 
 
@@ -59,6 +61,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_TIM3_Init(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -136,9 +139,17 @@ QMTT_Message QMTT_Get(EncryptedBlock * encryptedBlock)
 	return message;
 }
 
-static uint8_t UD1_address[5] =  {0x01,0xF7,0xF7,0xF7,0xF7};
+const static uint8_t deciceId=1;
+static uint8_t UD1_address[5] =  {deciceId,0xF7,0xF7,0xF7,0xF7};
 static uint32_t switches_states;
 static uint32_t switches_count=4;
+
+static uint16_t dimmer_values[1] = {0};
+static uint32_t dimmers_count=1;
+
+static uint8_t sun_mode=0; //0 - off, 1 - sunrise, 2 - sunset
+
+
 static char in_topic[]="/myhome/in";
 static char out_topic[]="/myhome/out";
 
@@ -170,6 +181,11 @@ void actualizeHardwareStatus()
 				
 		HAL_GPIO_WritePin(switchesMap[i].GPIOx, switchesMap[i].GPIO_Pin, pinstate);
 	}
+	
+	for(int i=0;i<dimmers_count;i++)
+	{
+		TIM3->CCR1=dimmer_values[i];
+	}
 		
 }
 
@@ -180,7 +196,7 @@ void sendSwitchStateToQMTTServer(uint32_t switch_no)
 		char message_off[]="OFF";
 		char * message;
 		
-		sprintf(topic, "UD1_%d", switch_no);
+		sprintf(topic, "UD%d_%d", deciceId, switch_no);
 		if((switches_states>>switch_no)&1){
 			message=message_on;
 		}else{
@@ -190,10 +206,18 @@ void sendSwitchStateToQMTTServer(uint32_t switch_no)
 		QMTT_SendTextMessage(topic, message, UD1_address, &AES_ctx);
 }
 
+void sendDimerStateToQMTTServer(uint32_t item_no)
+{
+		char topic[32];
+		char message[32];
+		sprintf(topic, "DM%d_%d", deciceId, item_no);
+		sprintf(message, "%d", dimmer_values[item_no]);
+		QMTT_SendTextMessage(topic, message, UD1_address, &AES_ctx);
+}
+
+
 void sendFullStatesToQMTTServer()
 {
-	//HAL_GPIO_WritePin(switchesMap[0].GPIOx, switchesMap[0].GPIO_Pin, GPIO_PIN_SET);
-	
 	QMTT_SendOutTopic(out_topic, UD1_address, &AES_ctx);
 	QMTT_SendInTopic(in_topic, UD1_address, &AES_ctx);
 	
@@ -202,27 +226,62 @@ void sendFullStatesToQMTTServer()
 		sendSwitchStateToQMTTServer(i);
 	}
 	
-	//HAL_GPIO_WritePin(switchesMap[0].GPIOx, switchesMap[0].GPIO_Pin, GPIO_PIN_RESET);
+	for(int i=0;i<dimmers_count;i++)
+	{
+		sendDimerStateToQMTTServer(i);
+	}
+	
 }
 
 void interpretateQMTTMessage(char * topic, char * value)
 {
+	char temp[32];
+	
 	for(int i=0;i<switches_count;i++)
 	{
-		char temp[32];
-		sprintf(temp, "UD1_%d", i);
+		sprintf(temp, "UD%d_%d", deciceId, i);
 		if(strcmp(topic, temp)==0)
 		{
 			if(strcmp(value, "ON")==0)
 			{
 				switches_states|=(1<<i);
 			}
-				else
+			else if(strcmp(value, "OFF")==0)
 			{
 				switches_states&=~(1<<i);
 			}
 		}
 	}
+	
+		
+	for(int i=0;i<dimmers_count;i++)
+	{
+		sprintf(temp, "DM%d_%d", deciceId, i);
+		
+		if(strcmp(topic, temp)==0)
+		{		
+			uint16_t val=atoi(value);
+			dimmer_values[i]=65535*val/100;
+		}
+	}
+
+	char temp2[32];
+	sprintf(temp2, "SN%d_0", deciceId);
+
+	if(strcmp(topic, temp2)==0)
+	{
+		if(strcmp(value, "ON")==0)
+		{
+			sun_mode=1;
+		}
+		else if(strcmp(value, "OFF")==0)
+		{
+			sun_mode=2;
+		}
+
+	}
+	
+	
 }
 
 /* USER CODE END 0 */
@@ -246,6 +305,7 @@ int main(void)
   MX_GPIO_Init();
   MX_RTC_Init();
   MX_SPI2_Init();
+  MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -259,8 +319,11 @@ int main(void)
 	
 	uint32_t last_t=0xffff;
 	//sendFullStatesToQMTTServer();
+	HAL_TIM_Base_Start(&htim3);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	
 	nrf24_powerUpRx();
+	uint32_t last_op=HAL_GetTick();
 	
   /* USER CODE END 2 */
 
@@ -269,16 +332,43 @@ int main(void)
   while (1)
   {
 		uint32_t t=HAL_GetTick();
-		if(t-last_t>60000)
+
+		if(t-last_op>30) //1 - 65 sec
+		{
+			last_op=t;
+			
+			if(sun_mode==1)
+			{
+				if(dimmer_values[0]==0xffff){
+					sun_mode=0;
+				}
+				else{
+					dimmer_values[0]+=1;
+					TIM3->CCR1=dimmer_values[0];
+				}
+			}
+			if(sun_mode==2)
+			{
+				if(dimmer_values[0]==0){
+					sun_mode=0;
+				}else{
+					dimmer_values[0]-=1;
+					TIM3->CCR1=dimmer_values[0];
+				}
+			}
+		}
+
+		
+		//uint32_t t=HAL_GetTick();
+		if(t-last_t>60000*10)
 		{
 			last_t=t;
 			sendFullStatesToQMTTServer();
 			nrf24_powerUpRx();
 		}
 		
-		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET)
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET) //onboard button pressed
 		{
-			
 			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)==GPIO_PIN_SET)
 			{
 				QMTT_SendTextMessage("UD1_0", "OFF", UD1_address, &AES_ctx);
@@ -397,6 +487,38 @@ void MX_SPI2_Init(void)
 
 }
 
+/* TIM3 init function */
+void MX_TIM3_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_OC_InitTypeDef sConfigOC;
+
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 0;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  HAL_TIM_Base_Init(&htim3);
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig);
+
+  HAL_TIM_PWM_Init(&htim3);
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig);
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+
+}
+
 /** Configure pins as 
         * Analog 
         * Input 
@@ -442,10 +564,10 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA2 PA6 PA7 PA10 
-                           PA11 PA12 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_15;
+  /*Configure GPIO pins : PA2 PA7 PA10 PA11 
+                           PA12 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_7|GPIO_PIN_10|GPIO_PIN_11 
+                          |GPIO_PIN_12|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 

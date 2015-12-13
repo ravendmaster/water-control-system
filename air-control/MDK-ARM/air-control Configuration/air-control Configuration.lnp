@@ -16,6 +16,8 @@
 "air-control configuration\stm32f1xx_hal_rtc_ex.o"
 "air-control configuration\stm32f1xx_hal_adc.o"
 "air-control configuration\stm32f1xx_hal_adc_ex.o"
+"air-control configuration\stm32f1xx_hal_tim.o"
+"air-control configuration\stm32f1xx_hal_tim_ex.o"
 "air-control configuration\stm32f1xx_hal_msp.o"
 "air-control configuration\main.o"
 "air-control configuration\stm32f1xx_it.o"

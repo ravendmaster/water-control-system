@@ -24,3 +24,5 @@ air-control configuration\system_stm32f1xx.o: ..\Drivers\STM32F1xx_HAL_Driver\In
 air-control configuration\system_stm32f1xx.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rtc.h
 air-control configuration\system_stm32f1xx.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rtc_ex.h
 air-control configuration\system_stm32f1xx.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h
+air-control configuration\system_stm32f1xx.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim.h
+air-control configuration\system_stm32f1xx.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim_ex.h
