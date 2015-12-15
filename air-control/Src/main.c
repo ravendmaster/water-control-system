@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * File Name          : main.c
-  * Date               : 12/12/2015 22:20:39
+  * Date               : 15/12/2015 22:57:21
   * Description        : Main program body
   ******************************************************************************
   *
@@ -139,8 +139,8 @@ QMTT_Message QMTT_Get(EncryptedBlock * encryptedBlock)
 	return message;
 }
 
-const static uint8_t deciceId=1;
-static uint8_t UD1_address[5] =  {deciceId,0xF7,0xF7,0xF7,0xF7};
+const static uint8_t deviceId=2;
+static uint8_t UD1_address[5] =  {deviceId,0xF7,0xF7,0xF7,0xF7};
 static uint32_t switches_states;
 static uint32_t switches_count=4;
 
@@ -149,6 +149,11 @@ static uint32_t dimmers_count=1;
 
 static uint8_t sun_mode=0; //0 - off, 1 - sunrise, 2 - sunset
 
+#define ON_QMTT_string "ON"
+#define OFF_QMTT_string "OFF"
+#define SWITCH_QMTT_string "UD"
+#define DIMMER_QMTT_string "DM"
+#define SUN_QMTT_string "SN"
 
 static char in_topic[]="/myhome/in";
 static char out_topic[]="/myhome/out";
@@ -168,7 +173,15 @@ static SwitchPinAdress switchesMap[32]=
 	
 };
 
-void actualizeHardwareStatus()
+uint64_t getXPow(uint16_t x)
+{
+	uint64_t temp_val=x*x/65536;
+	temp_val=temp_val*x/65536;
+	if(x>0 && temp_val==0)return 1;
+	return temp_val;
+}
+
+void refreshHardwareState()
 {
 	for(int i=0;i<switches_count;i++)
 	{
@@ -182,22 +195,21 @@ void actualizeHardwareStatus()
 		HAL_GPIO_WritePin(switchesMap[i].GPIOx, switchesMap[i].GPIO_Pin, pinstate);
 	}
 	
-	for(int i=0;i<dimmers_count;i++)
-	{
-		TIM3->CCR1=dimmer_values[i];
+	if(dimmers_count>0){
+		TIM3->CCR1=getXPow(dimmer_values[0]);
 	}
 		
 }
 
-void sendSwitchStateToQMTTServer(uint32_t switch_no)
+void sendSwitchStateToQMTTServer(const char * param, uint8_t switch_no, uint8_t value)
 {
 		char topic[32];
-		char message_on[]="ON";
-		char message_off[]="OFF";
+		char message_on[]=ON_QMTT_string;
+		char message_off[]=OFF_QMTT_string;
 		char * message;
 		
-		sprintf(topic, "UD%d_%d", deciceId, switch_no);
-		if((switches_states>>switch_no)&1){
+		sprintf(topic, "%s%d_%d", param, deviceId, switch_no);
+		if(value){
 			message=message_on;
 		}else{
 			message=message_off;
@@ -206,15 +218,14 @@ void sendSwitchStateToQMTTServer(uint32_t switch_no)
 		QMTT_SendTextMessage(topic, message, UD1_address, &AES_ctx);
 }
 
-void sendDimerStateToQMTTServer(uint32_t item_no)
+void sendDimerStateToQMTTServer(const char * param, uint8_t dimmer_no, uint16_t value)
 {
 		char topic[32];
 		char message[32];
-		sprintf(topic, "DM%d_%d", deciceId, item_no);
-		sprintf(message, "%d", dimmer_values[item_no]);
+		sprintf(topic, "%s%d_%d", param, deviceId, dimmer_no);
+		sprintf(message, "%d", value);
 		QMTT_SendTextMessage(topic, message, UD1_address, &AES_ctx);
 }
-
 
 void sendFullStatesToQMTTServer()
 {
@@ -223,14 +234,15 @@ void sendFullStatesToQMTTServer()
 	
 	for(int i=0;i<switches_count;i++)
 	{
-		sendSwitchStateToQMTTServer(i);
+		sendSwitchStateToQMTTServer(SWITCH_QMTT_string, i, (switches_states>>i)&1);
 	}
 	
 	for(int i=0;i<dimmers_count;i++)
 	{
-		sendDimerStateToQMTTServer(i);
+		sendDimerStateToQMTTServer(DIMMER_QMTT_string, i, dimmer_values[i]*100/65535 );
 	}
 	
+	sendSwitchStateToQMTTServer(SUN_QMTT_string, 0, sun_mode);
 }
 
 void interpretateQMTTMessage(char * topic, char * value)
@@ -239,24 +251,23 @@ void interpretateQMTTMessage(char * topic, char * value)
 	
 	for(int i=0;i<switches_count;i++)
 	{
-		sprintf(temp, "UD%d_%d", deciceId, i);
+		sprintf(temp, "%s%d_%d", SWITCH_QMTT_string, deviceId, i);
 		if(strcmp(topic, temp)==0)
 		{
-			if(strcmp(value, "ON")==0)
+			if(strcmp(value, ON_QMTT_string)==0)
 			{
 				switches_states|=(1<<i);
 			}
-			else if(strcmp(value, "OFF")==0)
+			else if(strcmp(value, OFF_QMTT_string)==0)
 			{
 				switches_states&=~(1<<i);
 			}
 		}
 	}
-	
 		
 	for(int i=0;i<dimmers_count;i++)
 	{
-		sprintf(temp, "DM%d_%d", deciceId, i);
+		sprintf(temp, "%s%d_%d", DIMMER_QMTT_string, deviceId, i);
 		
 		if(strcmp(topic, temp)==0)
 		{		
@@ -266,22 +277,19 @@ void interpretateQMTTMessage(char * topic, char * value)
 	}
 
 	char temp2[32];
-	sprintf(temp2, "SN%d_0", deciceId);
+	sprintf(temp2, "%s%d_0", SUN_QMTT_string, deviceId);
 
 	if(strcmp(topic, temp2)==0)
 	{
-		if(strcmp(value, "ON")==0)
+		if(strcmp(value, ON_QMTT_string)==0)
 		{
 			sun_mode=1;
 		}
-		else if(strcmp(value, "OFF")==0)
+		else if(strcmp(value, OFF_QMTT_string)==0)
 		{
 			sun_mode=2;
 		}
-
 	}
-	
-	
 }
 
 /* USER CODE END 0 */
@@ -318,7 +326,6 @@ int main(void)
 	nrf24_tx_address(openhab_gate_address_pipe1);
 	
 	uint32_t last_t=0xffff;
-	//sendFullStatesToQMTTServer();
 	HAL_TIM_Base_Start(&htim3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	
@@ -333,7 +340,7 @@ int main(void)
   {
 		uint32_t t=HAL_GetTick();
 
-		if(t-last_op>30) //1 - 65 sec
+		if(t-last_op>30)
 		{
 			last_op=t;
 			
@@ -344,7 +351,6 @@ int main(void)
 				}
 				else{
 					dimmer_values[0]+=1;
-					TIM3->CCR1=dimmer_values[0];
 				}
 			}
 			if(sun_mode==2)
@@ -353,14 +359,11 @@ int main(void)
 					sun_mode=0;
 				}else{
 					dimmer_values[0]-=1;
-					TIM3->CCR1=dimmer_values[0];
 				}
 			}
 		}
 
-		
-		//uint32_t t=HAL_GetTick();
-		if(t-last_t>60000*10)
+		if(t-last_t>600000)
 		{
 			last_t=t;
 			sendFullStatesToQMTTServer();
@@ -369,17 +372,18 @@ int main(void)
 		
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET) //onboard button pressed
 		{
+			char temp[32];
+			sprintf(temp, "%s%d_0", SWITCH_QMTT_string, deviceId);
 			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)==GPIO_PIN_SET)
 			{
-				QMTT_SendTextMessage("UD1_0", "OFF", UD1_address, &AES_ctx);
-				interpretateQMTTMessage("UD1_0", "OFF");
+				QMTT_SendTextMessage(temp, OFF_QMTT_string, UD1_address, &AES_ctx);
+				interpretateQMTTMessage(temp, OFF_QMTT_string);
 			}
 			else
 			{
-				QMTT_SendTextMessage("UD1_0", "ON", UD1_address, &AES_ctx);
-				interpretateQMTTMessage("UD1_0", "ON");
+				QMTT_SendTextMessage(temp, ON_QMTT_string, UD1_address, &AES_ctx);
+				interpretateQMTTMessage(temp, ON_QMTT_string);
 			}
-			actualizeHardwareStatus();
 
 			while((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET)){};
 		}
@@ -396,9 +400,9 @@ int main(void)
 			QMTT_Message qmtt_message=QMTT_Get(&encryptedBlock);
 
 			interpretateQMTTMessage(qmtt_message.topic, qmtt_message.value);
-			
-			actualizeHardwareStatus();
 		}
+		
+		refreshHardwareState();
 			
 			
   /* USER CODE END WHILE */
@@ -427,11 +431,10 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
   HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
 

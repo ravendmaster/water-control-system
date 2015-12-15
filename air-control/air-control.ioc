@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Sat Dec 12 22:20:38 MSK 2015
+#Tue Dec 15 22:57:21 MSK 2015
 File.Version=5
 KeepUserPlacement=false
 Mcu.Family=STM32F1
@@ -172,15 +172,14 @@ RCC.ADCFreqValue=1333333.3333333333
 RCC.ADCPresc=RCC_ADCPCLK2_DIV6
 RCC.AHBCLKDivider=RCC_SYSCLK_DIV2
 RCC.AHBFreq_Value=8000000
-RCC.APB1CLKDivider=RCC_HCLK_DIV2
-RCC.APB1Freq_Value=4000000
+RCC.APB1Freq_Value=8000000
 RCC.APB1TimFreq_Value=8000000
 RCC.APB2Freq_Value=8000000
 RCC.APB2TimFreq_Value=8000000
 RCC.FCLKCortexFreq_Value=8000000
 RCC.FamilyName=M
 RCC.HCLKFreq_Value=8000000
-RCC.IPParameters=PLLSource,VCOOutput2Freq_Value,VDD_VALUE,RTCFreq_Value,AHBCLKDivider,PLLMCOFreq_Value,FamilyName,APB1TimFreq_Value,APB2Freq_Value,APB1CLKDivider,HCLKFreq_Value,FCLKCortexFreq_Value,USBFreq_Value,ADCPresc,AHBFreq_Value,PLLSourceVirtual,TimSysFreq_Value,ADCFreqValue,SYSCLKFreq_VALUE,SYSCLKSource,MCOFreq_Value,APB1Freq_Value,PLLCLKFreq_Value,APB2TimFreq_Value
+RCC.IPParameters=PLLSource,VCOOutput2Freq_Value,VDD_VALUE,RTCFreq_Value,APB1TimFreq_Value,FamilyName,PLLMCOFreq_Value,AHBCLKDivider,APB2Freq_Value,HCLKFreq_Value,FCLKCortexFreq_Value,USBFreq_Value,ADCPresc,AHBFreq_Value,PLLSourceVirtual,TimSysFreq_Value,ADCFreqValue,SYSCLKFreq_VALUE,SYSCLKSource,MCOFreq_Value,APB1Freq_Value,PLLCLKFreq_Value,APB2TimFreq_Value
 RCC.MCOFreq_Value=16000000
 RCC.PLLCLKFreq_Value=16000000
 RCC.PLLMCOFreq_Value=8000000
@@ -196,10 +195,11 @@ RCC.VDD_VALUE=3.3
 SH.S_TIM3_CH1.0=TIM3_CH1,PWM Generation1 CH1
 SH.S_TIM3_CH1.ConfNb=1
 SPI2.BaudRatePrescaler=SPI_BAUDRATEPRESCALER_2
-SPI2.CalculateBaudRate=2.0 MBits/s
+SPI2.CalculateBaudRate=4.0 MBits/s
 SPI2.IPParameters=BaudRatePrescaler,Mode,CalculateBaudRate
 SPI2.Mode=SPI_MODE_MASTER
-TIM3.IPParameters=Pulse-PWM Generation1 CH1,Prescaler,Period
+TIM3.IPParameters=OCMode_PWM-PWM Generation1 CH1,Pulse-PWM Generation1 CH1,Prescaler,Period
+TIM3.OCMode_PWM-PWM\ Generation1\ CH1=TIM_OCMODE_PWM1
 TIM3.Period=65535
 TIM3.Prescaler=0
 TIM3.Pulse-PWM\ Generation1\ CH1=0
