@@ -106,7 +106,7 @@ QMTT_Message QMTT_Get(EncryptedBlock * encryptedBlock)
 	return message;
 }
 
-const static uint8_t deviceId=2;
+const static uint8_t deviceId=1;
 static uint8_t UD1_address[5] =  {deviceId,0xF7,0xF7,0xF7,0xF7};
 static uint32_t switches_states;
 static uint32_t switches_count=4;

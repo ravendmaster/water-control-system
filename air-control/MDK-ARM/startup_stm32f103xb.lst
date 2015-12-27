@@ -496,12 +496,12 @@ ARM Macro Assembler    Page 8
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend="air-control configuration\startup_stm32f103xb.d" -o"air-control c
-onfiguration\startup_stm32f103xb.o" -ID:\MyDocs\GitHub\water-control-system\air
--control\MDK-ARM\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Incl
-ude -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__MICROLIB SETA 1" --predefine=
-"__UVISION_VERSION SETA 514" --predefine="STM32F10X_MD SETA 1" --list=startup_s
-tm32f103xb.lst ..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\arm\startu
-p_stm32f103xb.s
+onfiguration\startup_stm32f103xb.o" -IC:\Users\Andrey\Documents\GitHub\water-co
+ntrol-system\air-control\MDK-ARM\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1
+.1.0\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__MICROLIB SETA
+ 1" --predefine="__UVISION_VERSION SETA 514" --predefine="STM32F10X_MD SETA 1" 
+--list=startup_stm32f103xb.lst ..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Temp
+lates\arm\startup_stm32f103xb.s
 
 
 
