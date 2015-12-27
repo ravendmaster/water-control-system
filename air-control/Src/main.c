@@ -87,39 +87,6 @@ aes128_ctx_t AES_ctx;
 
 uint8_t phrase[16];
 
-uint32_t isAccidient()
-{
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)==GPIO_PIN_SET)
-	{
-		return 1;
-	}
-	
-	return 0;
-}
-
-uint8_t LightIsOn()
-{
-	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)==GPIO_PIN_SET)
-	{
-		return 0;
-	}
-	return 1;
-}
-
-uint32_t getPostKey()
-{
-	return BKP->DR1 | BKP->DR2<<16;
-}
-
-void setPostKey(uint32_t key)
-{
-		BKP->DR1=key&0xffff;
-		BKP->DR2=key>>16;	
-}
-
-void xprintf(void * ptr, ...)
-{
-}
 
 typedef struct QMTT_Message
 {
@@ -173,10 +140,10 @@ static SwitchPinAdress switchesMap[32]=
 	
 };
 
-uint64_t getXPow(uint16_t x)
+uint64_t getXPow(uint64_t x)
 {
-	uint64_t temp_val=x*x/65536;
-	temp_val=temp_val*x/65536;
+	uint64_t temp_val=x*x*x>>32;
+	
 	if(x>0 && temp_val==0)return 1;
 	return temp_val;
 }
@@ -243,6 +210,8 @@ void sendFullStatesToQMTTServer()
 	}
 	
 	sendSwitchStateToQMTTServer(SUN_QMTT_string, 0, sun_mode);
+	nrf24_powerUpRx();
+	
 }
 
 void interpretateQMTTMessage(char * topic, char * value)
@@ -292,7 +261,14 @@ void interpretateQMTTMessage(char * topic, char * value)
 	}
 }
 
+uint16_t mod(int32_t v1)
+{
+	if(v1<0)return -v1;
+	return v1;
+}
+
 /* USER CODE END 0 */
+
 
 int main(void)
 {
@@ -314,7 +290,6 @@ int main(void)
   MX_RTC_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
-
   /* USER CODE BEGIN 2 */
 
 	aes128_init(AES_key, &AES_ctx);
@@ -325,12 +300,16 @@ int main(void)
 	nrf24_rx_address(RX_ADDR_P1, UD1_address);
 	nrf24_tx_address(openhab_gate_address_pipe1);
 	
-	uint32_t last_t=0xffff;
+	uint32_t last_MQTT_send=0;
+	
 	HAL_TIM_Base_Start(&htim3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	
 	nrf24_powerUpRx();
-	uint32_t last_op=HAL_GetTick();
+	
+	uint32_t last_dimmer_operation=HAL_GetTick();
+	
+	uint16_t last_dimmer_val=0;
 	
   /* USER CODE END 2 */
 
@@ -338,11 +317,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		uint32_t t=HAL_GetTick();
+		uint32_t cut_tick=HAL_GetTick();
 
-		if(t-last_op>30)
+		if(cut_tick-last_dimmer_operation>30)
 		{
-			last_op=t;
+			last_dimmer_operation=cut_tick;
 			
 			if(sun_mode==1)
 			{
@@ -363,11 +342,21 @@ int main(void)
 			}
 		}
 
-		if(t-last_t>600000)
+		if(mod(last_dimmer_val-dimmer_values[0])>6553 || (dimmer_values[0]==0xffff && last_dimmer_val-dimmer_values[0]!=0) || (dimmer_values[0]==0 && last_dimmer_val-dimmer_values[0]!=0))
 		{
-			last_t=t;
-			sendFullStatesToQMTTServer();
+			last_dimmer_val=dimmer_values[0];
+			
+			for(int i=0;i<dimmers_count;i++)
+			{
+				sendDimerStateToQMTTServer(DIMMER_QMTT_string, i, dimmer_values[i]*100/65535 );
+			}
 			nrf24_powerUpRx();
+		}
+		
+		if((cut_tick-last_MQTT_send>60000)||(last_MQTT_send==0))
+		{
+			last_MQTT_send=cut_tick;
+			sendFullStatesToQMTTServer();
 		}
 		
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8)==GPIO_PIN_SET) //onboard button pressed
