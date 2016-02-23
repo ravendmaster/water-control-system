@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
   * @file    stm32f1xx_it.h
-  * @date    03/08/2015 17:27:18
+  * @date    23/02/2016 16:14:25
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2015 STMicroelectronics
+  * COPYRIGHT(c) 2016 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:

@@ -25,6 +25,7 @@ water-control configuration\at24c.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1
 water-control configuration\at24c.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_i2c.h
 water-control configuration\at24c.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h
 water-control configuration\at24c.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h
+water-control configuration\at24c.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_uart.h
 water-control configuration\at24c.o: ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.h
 water-control configuration\at24c.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 water-control configuration\at24c.o: ..\Middlewares\Third_Party\FreeRTOS\Source\include\FreeRTOS.h

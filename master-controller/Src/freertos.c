@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
   * File Name          : freertos.c
-  * Date               : 03/08/2015 17:27:18
+  * Date               : 23/02/2016 16:14:25
   * Description        : Code for freertos applications
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2015 STMicroelectronics
+  * COPYRIGHT(c) 2016 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:

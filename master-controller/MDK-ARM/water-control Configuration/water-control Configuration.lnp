@@ -27,6 +27,7 @@
 "water-control configuration\stm32f1xx_hal_i2c.o"
 "water-control configuration\stm32f1xx_hal_tim.o"
 "water-control configuration\stm32f1xx_hal_tim_ex.o"
+"water-control configuration\stm32f1xx_hal_uart.o"
 "water-control configuration\tasks.o"
 "water-control configuration\cmsis_os.o"
 "water-control configuration\event_groups.o"

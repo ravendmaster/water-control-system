@@ -40,6 +40,7 @@ water-control configuration\menu.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1x
 water-control configuration\menu.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_i2c.h
 water-control configuration\menu.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h
 water-control configuration\menu.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h
+water-control configuration\menu.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_uart.h
 water-control configuration\menu.o: ..\Inc\encoder.h
 water-control configuration\menu.o: ..\Inc\LCD.h
 water-control configuration\menu.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

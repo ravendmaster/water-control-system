@@ -25,4 +25,5 @@ water-control configuration\bf.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_
 water-control configuration\bf.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_i2c.h
 water-control configuration\bf.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h
 water-control configuration\bf.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h
+water-control configuration\bf.o: ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_uart.h
 water-control configuration\bf.o: ..\Inc\bf.h
